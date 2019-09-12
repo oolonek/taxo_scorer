@@ -5,19 +5,24 @@ title: "TaxoDesigneR"
 #Requested Files 
 ```{r}
 #Input here weighed annotation result of ISDB
-input_weighed_ISDB_path <- "../Data/Weighted/ISDB_weighted.tsv"
+input_weighed_ISDB_path <- "https://osf.io/yhvxg/download"
 
 #Input here weighed annotation result of MSFinder
-input_weighed_MSFinder_path <- "../Data/Weighted/MSFinder_weighted.tsv"
+input_weighed_MSFinder_path <- "https://osf.io/xs52m/download"
 
 #Input here weighed annotation result of Sirius
-input_weighed_Sirius_path <- "../Data/Weighted/Sirius_weighted.tsv"
+input_weighed_Sirius_path <- "https://osf.io/keug3/download"
 
 #F1 scores
-input_f1_scores_path <- "../Data/Weighted/F1_scores.tsv"
+input_f1_scores_path <- "https://osf.io/da53c/download"
 
 #Only for the standards
-input_cleaned_STDS_path <- "../Data/Curated/STDS_cleaned.tsv"
+input_cleaned_STDS_path <- "https://osf.io/rp3g2/download"
+
+#taxo_optimizer results (.RData)
+
+input_taxo_optimizer_results_path <- 'https://osf.io/h2f5t/download'
+
 
 #DNP
 input <- "~/190602_DNP_TAXcof_CF.tsv"
@@ -28,7 +33,6 @@ input <- "~/190602_DNP_TAXcof_CF.tsv"
 library(data.table)
 library(dplyr)
 library(eulerr)
-library(feather)
 library(plotly)
 library(readr)
 library(viridis)
@@ -39,25 +43,27 @@ library(htmlwidgets)
 
 Loading the files obtained after cleaning
 ```{r}
-ISDBout_weighted <- read_feather(
+ISDBout_weighted <- read_csv(
   input_weighed_ISDB_path
   )
 
-MSFinderout_weighted <- read_feather(
+MSFinderout_weighted <- read_csv(
   input_weighed_MSFinder_path
   )
 
-Siriusout_weighted <- read_feather(
+Siriusout_weighted <- read_csv(
   input_weighed_Sirius_path
   )
 
-F1_scores <- read_feather(
+F1_scores <- read_csv(
   input_f1_scores_path
   )
 
-STDS_tax <- read_feather(
+STDS_tax <- read_csv(
   input_cleaned_STDS_path
   )
+
+load(url(input_taxo_optimizer_results_path))
 
 File <- read_delim(
   file = input,
@@ -67,6 +73,7 @@ File <- read_delim(
   ) 
 
 col_seq_12 <- brewer.pal(12, "Paired")
+
 ```
 
 #Global Results
@@ -953,24 +960,9 @@ summary(Non_Identified$pepmass_val_STDS)
 ```
 
 #Export
-##ORCA_PDF
-```{r eval=FALSE, include=FALSE}
-Sys.setenv('MAPBOX_TOKEN' = 'sk.eyJ1IjoiYWRhZmVkZSIsImEiOiJjanNwcnExNWwwNWVwNDRudDM2amJzb2htIn0.-qqOsWXic14b5Yxj1oPPlw')
-orca(dens_plot, "1.svg")
-orca(Chemical_diversity_comparison, "2.svg")
-orca(Families_in_set_2, "3.svg")
-orca(ms, "4.svg")
-orca(F1, "5.svg")
-orca(roc, "8.svg")
-orca(Accurate_masses, "9.svg")
-orca(o_1, "10.svg")
-orca(o_2, "11.svg")
-orca(o_3, "12.svg")
-orca(o_4, "12.svg")
-```
 
 ##html
-```{r}
+```{r eval=FALSE, include=FALSE}
 saveWidget(as_widget(dens_plot), "1.html")
 saveWidget(as_widget(Chemical_diversity_comparison), "2.html")
 saveWidget(as_widget(Families_in_set_2), "3.html")
