@@ -1,6 +1,7 @@
 ---
-title: "TaxoCleaner"
+title: "Taxo Cleaner"
 ---
+
 
 #Lines having to be adapted to data
 ###Desired n° of candidates 
@@ -11,37 +12,37 @@ top_candidates <- 500000
 ###Inputs
 ```{r}
 #Path to ISDB result
-input_ISDB_path <- "../Data/Original/ISDB/190405_GNPS_lib_top500_uniqueSIK_MN_cos005_tol005_top500.out"
+input_ISDB_path <- "https://osf.io/yunm8/download"
 
 #Path to MSFinder result
-input_MSFinder_path <- "../Data/Original/MSFinder/Structure result-2068.txt"
+input_MSFinder_path <- "https://osf.io/2h7y9/download"
 
 #Path to Sirius result
-input_Sirius_path <- "../Data/Original/Sirius/full_sirius_2107.csv"
+input_Sirius_path <- "https://osf.io/57tw6/download"
 
 #Path to metadata with structures/biosources information
-Metadata_path <- "~/190402_DNP_TAXcof_CF.tsv"
+Metadata_path <- ""
 
 #Path to GNPS file containing Spectrum ID
-Spectrum_ID_file_path <- "../Data/Original/Metadata/190405_GNPS_top500_species_SpecIDed.tsv"
+Spectrum_ID_file_path <- "https://osf.io/un8ey/download"
 
 #Only for the standards
-input_STDS_path <- "../Data/Original/Metadata/190405_Metadata_GNPS_top500_uniqueSIK_species_level.tsv"
+input_STDS_path <- "https://osf.io/ye4gx/download"
 ```
 
 ###Outputs
 ```{r}
 #Path to curated result of ISDB
-output_ISDB_path <- "../Data/Curated/ISDB_curated.tsv"
+output_ISDB_path <- "~/Data/Curated/ISDB_DNP_output_curated.tsv"
 
 #Path to curated result of MSFinder
-output_MSFinder_path <- "../Data/Curated/MSFinder_curated.tsv"
+output_MSFinder_path <- "~/Data/Curated/MS_Finder_output_curated.tsv"
 
 #Path to curated result of Sirius
-output_Sirius_path <- "../Data/Curated/Sirius_curated.tsv"
+output_Sirius_path <- "~/Data/Curated/Sirius_output_curated.tsv"
 
 #Path to curated standards
-output_STDS_path <- "../Data/Curated/STDS_cleaned.tsv"
+output_STDS_path <- "~/Data/Curated/benchmarking_dataset_metadata_curated.tsv"
 ```
 
 #Requested packages
@@ -272,8 +273,8 @@ ISDBout_tax_STDS$MatchVal <- ifelse(ISDBout_tax_STDS$Short_IK_query == ISDBout_t
 
 #Exporting
 ```{r}
-write_feather(Siriusout_tax_STDS, output_Sirius_path)
-write_feather(MSFinderout_tax_STDS, output_MSFinder_path)
-write_feather(ISDBout_tax_STDS, output_ISDB_path)
-write_feather(STDS_cleaned, output_STDS_path)
+write_csv(Siriusout_tax_STDS, output_Sirius_path)
+write_csv(MSFinderout_tax_STDS, output_MSFinder_path)
+write_csv(ISDBout_tax_STDS, output_ISDB_path)
+write_csv(STDS_cleaned, output_STDS_path)
 ```
