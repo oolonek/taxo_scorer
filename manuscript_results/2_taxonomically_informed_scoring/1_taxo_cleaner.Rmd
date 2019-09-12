@@ -48,7 +48,6 @@ output_STDS_path <- "~/Data/Curated/benchmarking_dataset_metadata_curated.tsv"
 #Requested packages
 ```{r}
 library(data.table)
-library(feather)
 library(readr)
 library(dplyr)
 library(splitstackshape)
@@ -58,7 +57,6 @@ library(stringr)
 Outputing packages versions
 ```{r}
 packageVersion('data.table')
-packageVersion('feather')
 packageVersion('readr')
 packageVersion('dplyr')
 packageVersion('splitstackshape')
