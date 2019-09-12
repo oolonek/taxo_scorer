@@ -20,7 +20,7 @@ input_cleaned_Sirius_path <- "https://osf.io/qh6wy/download"
 #Path to weighted annotation result of ISDB
 output_weighted_ISDB_path <- "~/Data/Weighted/ISDB_DNP_scored.tsv"
 
-#Path toweighted annotation result of MSFinder
+#Path to weighted annotation result of MSFinder
 output_weighted_MSFinder_path <- "~/Data/Weighted/MS_Finder_scored.tsv"
 
 #Path to weighted annotation result of Sirius
