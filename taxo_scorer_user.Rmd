@@ -1,0 +1,253 @@
+---
+title: "TaxoWeighter"
+---
+
+#Lines having to be adapted to data
+###Desired n° of initial candidates 
+```{r}
+top_initial <- 50
+```
+
+###Desired n° of final candidate(s) 
+```{r}
+top_final <- 5
+```
+
+###Taxonomical info of your sample(s)
+```{r}
+family <- "Papaveraceae"
+genus <- "Glaucium"
+species <- "Glaucium grandiflorum"
+```
+
+###Inputs
+```{r}
+#Path to ISDB result
+input_ISDB_path <- "~/Dropbox/Research_UNIGE/Papers_PMA/2019/Taxo_paper_Frontiers_Chemodiversity/Data_Mohsen/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top50.out"
+#"/Users/rutza/Downloads/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top50.out"
+
+#Path to metadata with structures/biosources information
+Metadata_path <- "~/190402_DNP_TAXcof_CF.tsv"
+```
+
+###Output
+```{r}
+#Path to weighed annotation result of ISDB
+output_weighed_ISDB_path <- file(
+  '~/Dropbox/Research_UNIGE/Papers_PMA/2019/Taxo_paper_Frontiers_Chemodiversity/Data_Mohsen/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top5_repond_lastuserscript.out', 
+#  '/Users/rutza/Downloads/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top_repond.tsv',
+  encoding = "UTF-8"
+  )
+```
+
+#Requested packages
+```{r}
+library(data.table)
+library(readr)
+library(dplyr)
+library(splitstackshape)
+library(stringr)
+library(purrr)
+```
+
+Outputing packages versions
+```{r}
+packageVersion('data.table')
+packageVersion('readr')
+packageVersion('dplyr')
+packageVersion('splitstackshape')
+packageVersion('stringr')
+packageVersion('purrr')
+```
+
+Loading the files
+```{r}
+ISDBout <- read_delim(
+  input_ISDB_path, 
+  delim = "\t",
+  escape_double = FALSE,
+  trim_ws = TRUE
+  )
+Metadata <- read_delim(
+  Metadata_path, 
+  delim = "\t", 
+  escape_double = FALSE, 
+  trim_ws = TRUE
+  )
+```
+
+# Preliminary cleaning
+###ISDB
+Splitting columns
+```{r}
+ISDBout <- ISDBout %>%
+  as.data.table() %>%
+  cSplit("SMILES_DNP", "|") %>%
+  cSplit("InChIKey_DNP", "|") %>%
+  cSplit("Biological_Source_DNP", "|") %>%
+  cSplit("CRC_Number_DNP", "|") %>%
+  cSplit("Molecular_Formula_DNP", "|") %>%
+  cSplit("Compound_Types_DNP", "|") %>%
+  cSplit("Molecule_Name_DNP", "|") %>%
+  cSplit("Biological_Use_DNP", "|") %>%
+  cSplit("Spectral_Score_DNP", "|") %>%
+  cSplit("IS_libname", "|") %>%
+  cSplit("IS_match_mzerror", "|")
+```
+
+Melting the data
+```{r}
+ISDBout_melted <- melt(setDT(ISDBout), 
+                       id=,
+                       measure = patterns(
+                         "^SMILES_DNP", 
+                         "^InChIKey_DNP",
+                         "^Biological_Source_DNP",
+                         "^CRC_Number_DNP", 
+                         "^Molecular_Formula_DNP", 
+                         "^Compound_Types_DNP", 
+                         "^Molecule_Name_DNP", 
+                         "^Biological_Use_DNP", 
+                         "^Spectral_Score_DNP",  
+                         "^IS_libname", 
+                         "^IS_match_mzerror"), 
+                       value.name = c(
+                         "SMILES_DNP", 
+                         "InChIKey_DNP",
+                         "Biological_Source_DNP",
+                         "CRC_Number_DNP", 
+                         "Molecular_Formula_DNP", 
+                         "Compound_Types_DNP", 
+                         "Molecule_Name_DNP", 
+                         "Biological_Use_DNP", 
+                         "Spectral_Score_DNP",  
+                         "IS_libname", 
+                         "IS_match_mzerror"),
+                       variable.name = "Rank")
+```
+
+Generating ShortIK
+```{r}
+tempIK <- str_split_fixed(ISDBout_melted$InChIKey_DNP, "-", 3)
+ISDBout_melted$"Short_IK_ISDB" = tempIK[,1]
+```
+
+Adding taxonomical information
+```{r}
+ISDBout_melted$Family_Bio <- family
+ISDBout_melted$Genus_Bio <- genus
+ISDBout_melted$Species_Bio <- species
+```
+
+###Harmonizing outputs
+```{r}
+ISDBout <- ISDBout_melted%>%
+  mutate_at(vars(matches("Rank")), list(as.numeric))%>%
+  select(
+    ID_query = `cluster index`, 
+    Component_Index = componentindex,
+    Molecular_Formula_DNP,
+    Molecule_Name_DNP,
+    Smiles_DNP = SMILES_DNP,
+    Short_IK_query = Short_IK_ISDB,
+    Rank_query = Rank,
+    Score_query = Spectral_Score_DNP,
+    Family_Bio, 
+    Genus_Bio, 
+    Species_Bio
+    ) %>%
+  data.table()
+ISDBout <- ISDBout[ISDBout$Short_IK_query != '',]
+```
+
+Keeping only the desired candidates
+```{r}
+ISDBout_top <- ISDBout %>% 
+  filter(Rank_query <= top_initial)
+```
+
+###Metadata
+```{r}
+Metadata_cleaned <- Metadata %>% 
+  select(
+    Short_IK_DNP, 
+    Kingdom,
+    Phylum, 
+    Class, 
+    Order, 
+    Family,
+    Genus, 
+    Species, 
+    Subspecies,
+    Kingdom_cf,
+    Superclass_cf, 
+    Class_cf, 
+    Subclass_cf, 
+    Parent_Level_1_cf,
+    Parent_Level_2_cf, 
+    Parent_Level_3_cf, 
+    Parent_Level_4_cf,
+    Parent_Level_5_cf,
+    Parent_Level_6_cf
+    )
+```
+
+#Adding metadata
+```{r}
+ISDBout_merged_taxed = left_join(ISDBout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
+```
+
+### Loading the function
+```{r}
+source("Taxo_Functions/TaxoWeighting_Filtering_Plotting_functions.R")
+```
+
+###Applying the function
+```{r}
+ISDBout_weighted <- TaxoWeighter_UseR(0.81, 1.62, 2.55, ISDBout_merged_taxed)
+```
+
+Keeping only desired top candidates
+```{r}
+ISDB_top5_weighted <- ISDBout_weighted %>%
+  group_by(ID_query) %>% 
+  filter(RANK_FINAL <= top_final)
+```
+
+Outputing relevant information to Cytoscape friendly format
+```{r}
+ISDB2Cytoscape <- ISDB_top5_weighted %>%
+  group_by(ID_query) %>% 
+  distinct(Short_IK_query, .keep_all = TRUE) %>% 
+  summarise(Score = paste(Score_query, collapse = "|"), 
+            Short_IK = paste(Short_IK_query, collapse = "|"), 
+            Smiles_DNP = paste(Smiles_DNP, collapse = "|"), 
+            Molecule_Name_DNP = paste(Molecule_Name_DNP, collapse = "|"), 
+            Molecular_Formula_DNP = paste(Molecular_Formula_DNP, collapse = "|"),
+            Family = paste(Family, collapse = "|"), 
+            Genus = paste(Genus, collapse = "|"), 
+            Species = paste(Species, collapse = "|"), 
+            Subspecies = paste(Subspecies, collapse = "|"), 
+            Superclass_cf = paste(Superclass_cf, collapse = "|"), 
+            Class_cf = paste(Class_cf, collapse = "|"), 
+            Subclass_cf = paste(Subclass_cf, collapse = "|"), 
+            Parent_Level_1_cf = paste(Parent_Level_1_cf, collapse = "|"), 
+            Parent_Level_2_cf = paste(Parent_Level_2_cf, collapse = "|"), 
+            Parent_Level_3_cf = paste(Parent_Level_3_cf, collapse = "|"), 
+            Parent_Level_4_cf = paste(Parent_Level_4_cf, collapse = "|"), 
+            Parent_Level_5_cf = paste(Parent_Level_5_cf, collapse = "|"), 
+            Parent_Level_6_cf = paste(Parent_Level_6_cf, collapse = "|"), 
+            Pondered_Score_query = paste(Pondered_Score_query, collapse = "|"), 
+            Rank = paste(RANK_BEFORE, collapse = "|")
+            )
+```
+
+Removing NA in Smiles for ChemViz plugin
+```{r}
+ISDB2Cytoscape$Smiles_DNP <- str_replace_all(ISDB2Cytoscape$Smiles_DNP, "NA", "")
+```
+
+#Exporting
+```{r}
+write.table(ISDB2Cytoscape, file = output_weighed_ISDB_path, row.names = FALSE, quote = FALSE, sep ="\t")
+```

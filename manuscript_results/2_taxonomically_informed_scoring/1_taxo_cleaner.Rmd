@@ -1,0 +1,279 @@
+---
+title: "TaxoCleaner"
+---
+
+#Lines having to be adapted to data
+###Desired n° of candidates 
+```{r}
+top_candidates <- 500000
+```
+
+###Inputs
+```{r}
+#Path to ISDB result
+input_ISDB_path <- "../Data/Original/ISDB/190405_GNPS_lib_top500_uniqueSIK_MN_cos005_tol005_top500.out"
+
+#Path to MSFinder result
+input_MSFinder_path <- "../Data/Original/MSFinder/Structure result-2068.txt"
+
+#Path to Sirius result
+input_Sirius_path <- "../Data/Original/Sirius/full_sirius_2107.csv"
+
+#Path to metadata with structures/biosources information
+Metadata_path <- "~/190402_DNP_TAXcof_CF.tsv"
+
+#Path to GNPS file containing Spectrum ID
+Spectrum_ID_file_path <- "../Data/Original/Metadata/190405_GNPS_top500_species_SpecIDed.tsv"
+
+#Only for the standards
+input_STDS_path <- "../Data/Original/Metadata/190405_Metadata_GNPS_top500_uniqueSIK_species_level.tsv"
+```
+
+###Outputs
+```{r}
+#Path to curated result of ISDB
+output_ISDB_path <- "../Data/Curated/ISDB_curated.tsv"
+
+#Path to curated result of MSFinder
+output_MSFinder_path <- "../Data/Curated/MSFinder_curated.tsv"
+
+#Path to curated result of Sirius
+output_Sirius_path <- "../Data/Curated/Sirius_curated.tsv"
+
+#Path to curated standards
+output_STDS_path <- "../Data/Curated/STDS_cleaned.tsv"
+```
+
+#Requested packages
+```{r}
+library(data.table)
+library(feather)
+library(readr)
+library(dplyr)
+library(splitstackshape)
+library(stringr)
+```
+
+Outputing packages versions
+```{r}
+packageVersion('data.table')
+packageVersion('feather')
+packageVersion('readr')
+packageVersion('dplyr')
+packageVersion('splitstackshape')
+packageVersion('stringr')
+```
+
+Loading the output files, standard file, and metadata file
+```{r}
+ISDBout <- read_delim(input_ISDB_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+
+MSFinderout <- read_delim(input_MSFinder_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+
+Siriusout <- read_delim(input_Sirius_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+
+STDS_tax <- read_delim(input_STDS_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+
+Metadata <- read_delim(Metadata_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+
+Spectrum_ID_file <- read_delim(Spectrum_ID_file_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+```
+
+# Preliminary cleaning
+###ISDB
+Adding Spectrum ID
+```{r}
+Spectrum_ID_file$observation <- 1:nrow(Spectrum_ID_file)
+
+Spectrum_ID_file <- Spectrum_ID_file %>%
+  select(observation, spectrum_id_val)
+
+ISDBout = left_join(ISDBout, Spectrum_ID_file, by = c("cluster index" = "observation"), match = "all")
+```
+
+Keeping required columns
+```{r}
+ISDBout <- ISDBout %>% 
+  select(spectrum_id_val, InChIKey_DNP, Spectral_Score_DNP)
+```
+
+Splitting columns
+```{r}
+ISDBout <- ISDBout %>%
+  as.data.table() %>%
+  cSplit("InChIKey_DNP", "|") %>%
+  cSplit("Spectral_Score_DNP", "|")
+```
+
+Melting the data
+```{r}
+ISDBout_melted <- melt(setDT(ISDBout), id = ,
+                       measure = patterns("^InChIKey_DNP",
+                                          "^Spectral_Score_DNP"), 
+                       value.name = c("InChIKey_DNP", 
+                                      "Spectral_Score_DNP"),
+                       variable.name = "Rank")
+```
+
+Removing unnecessary columns
+```{r}
+ISDBout_cleaned <- ISDBout %>%
+  select(-contains("DNP_"))
+```
+
+Adding Cluster Index
+```{r}
+ISDBout_merged = left_join(ISDBout_cleaned, ISDBout_melted)
+```
+
+Generating ShortIK
+```{r}
+tempIK <- str_split_fixed(ISDBout_merged$InChIKey_DNP, "-", 3)
+
+ISDBout_merged$"Short_IK_ISDB" = tempIK[,1]
+```
+
+###MSFinder
+Melting the data
+```{r}
+MSFinderout_melted <- melt(setDT(MSFinderout), id = ,
+                           measure = patterns("^Structure rank",
+                                              "^Total score",
+                                              "^Databases",
+                                              "^Ontology",
+                                              "^InChIKey",
+                                              "^Formula",
+                                              "^SMILES"),
+                           value.name = c("Structure rank",
+                                          "Total score",
+                                          "Databases",
+                                          "Ontology",
+                                          "InChIKey",
+                                          "Formula",
+                                          "SMILES"),
+                           variable.name = "Rank")
+```
+
+Keeping required columns
+```{r}
+MSFinderout_melted <- MSFinderout_melted %>% 
+  select(Title, Rank, 'Total score', InChIKey)
+```
+
+Getting proper short IK
+```{r}
+MSFinderout_melted$Short_IK <- substr(MSFinderout_melted$InChIKey, 0, 14)
+```
+
+###Sirius  
+Cleaning of useless columns
+```{r}
+Siriusout <- Siriusout%>%
+  filter(str_detect(inchi, "^InChI"))
+```
+
+Renaming column
+```{r}
+colnames(Siriusout)[1]<-"inchikey2D"
+```
+
+Splitting columns to get proper short IK
+```{r}
+Siriusout <- Siriusout %>%
+  cSplit("inchikey2D", ":")%>%
+  cSplit("inchikey2D_1", ".")
+```
+
+
+```{r}
+Siriusout <- Siriusout%>%
+  select(inchikey2D_1_1, inchikey2D_2, rank, score)
+```
+
+```{r}
+sirius_unique <- Siriusout[!duplicated(Siriusout$inchikey2D_1_1),]
+```
+
+###Metadata
+```{r}
+Metadata_cleaned <- Metadata %>% 
+  select(Short_IK_DNP, Kingdom, Phylum, Class, Order, Family, Genus, Species, Subspecies, Kingdom_cf, Superclass_cf, Class_cf, Subclass_cf, Parent_Level_1_cf, Parent_Level_2_cf, Parent_Level_3_cf, Parent_Level_4_cf, Parent_Level_5_cf, Parent_Level_6_cf, Accurate_Mass)
+```
+
+###STDS
+Renaming columns
+```{r}
+colnames(STDS_tax) <- paste(colnames(STDS_tax), "STDS", sep = "_")
+colnames(STDS_tax)[7]<-"ID_STDS"
+```
+
+```{r}
+STDS_cleaned <- STDS_tax %>% 
+  select(ID_STDS, Short_IK_STDS, Kingdom_STDS, Phylum_STDS, Class_STDS, Order_STDS, Family_STDS, Genus_STDS, Species_STDS, Subspecies_STDS, Kingdom_cf_STDS, Superclass_cf_STDS, Class_cf_STDS, Subclass_cf_STDS, Parent_Level_1_cf_STDS, Parent_Level_2_cf_STDS, Parent_Level_3_cf_STDS, Parent_Level_4_cf_STDS, Parent_Level_5_cf_STDS, Parent_Level_6_cf_STDS, Accurate_Mass_STDS, pepmass_val_STDS, sourceinstr_val_STDS, lib_val_STDS)
+```
+
+###Harmonizing outputs
+```{r}
+Siriusout <- Siriusout%>%
+  mutate_at(vars(matches("rank")),list(as.numeric))%>%
+  select(ID_query = inchikey2D_1_1, Short_IK_query = inchikey2D_2, Rank_query = rank, Score_query = score)%>%
+  mutate(Score_query = as.numeric(Score_query))%>%
+  mutate(Short_IK_query = as.character(Short_IK_query))%>%
+  mutate(ID_query = as.character(ID_query))%>%
+  data.table()
+
+MSFinderout <- MSFinderout_melted%>%
+  mutate_at(vars(matches("Rank")),list(as.numeric))%>%
+  select(ID_query = Title, Short_IK_query = Short_IK, Rank_query = Rank, Score_query =`Total score`)%>%
+  data.table()
+MSFinderout <- MSFinderout[MSFinderout$Short_IK_query != '',]
+
+ISDBout <- ISDBout_merged%>%
+  mutate_at(vars(matches("Rank")),list(as.numeric))%>%
+  select(ID_query = spectrum_id_val, Short_IK_query = Short_IK_ISDB, Rank_query = Rank, Score_query = Spectral_Score_DNP) %>%
+  data.table()
+ISDBout <- ISDBout[ISDBout$Short_IK_query != '',]
+```
+
+Keeping only the desired candidates
+```{r}
+Siriusout_top <- filter(Siriusout, Rank_query <= top_candidates)
+MSFinderout_top <- filter(MSFinderout, Rank_query <= top_candidates)
+ISDBout_top <- filter(ISDBout, Rank_query <= top_candidates)
+```
+
+#Adding metadata
+```{r}
+Siriusout_merged_taxed = left_join(Siriusout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
+
+MSFinderout_merged_taxed = left_join(MSFinderout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
+
+ISDBout_merged_taxed = left_join(ISDBout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
+```
+
+#Merging with standards
+Merging files by unique ID
+```{r}
+Siriusout_tax_STDS = left_join(Siriusout_merged_taxed, STDS_cleaned, by = c("ID_query" = "ID_STDS"), match = "all")
+
+MSFinderout_tax_STDS = left_join(MSFinderout_merged_taxed, STDS_cleaned, by = c("ID_query" = "ID_STDS"), match = "all")
+
+ISDBout_tax_STDS = left_join(ISDBout_merged_taxed, STDS_cleaned, by = c("ID_query" = "ID_STDS"), match = "all")
+```
+
+Matching with the standards to get the correct hits
+```{r}
+Siriusout_tax_STDS$MatchVal <- ifelse(Siriusout_tax_STDS$Short_IK_query == Siriusout_tax_STDS$Short_IK_STDS, "Match", "NoMatch")
+
+MSFinderout_tax_STDS$MatchVal <- ifelse(MSFinderout_tax_STDS$Short_IK_query == MSFinderout_tax_STDS$Short_IK_STDS, "Match", "NoMatch")
+
+ISDBout_tax_STDS$MatchVal <- ifelse(ISDBout_tax_STDS$Short_IK_query == ISDBout_tax_STDS$Short_IK_STDS, "Match", "NoMatch")
+```
+
+#Exporting
+```{r}
+write_feather(Siriusout_tax_STDS, output_Sirius_path)
+write_feather(MSFinderout_tax_STDS, output_MSFinder_path)
+write_feather(ISDBout_tax_STDS, output_ISDB_path)
+write_feather(STDS_cleaned, output_STDS_path)
+```

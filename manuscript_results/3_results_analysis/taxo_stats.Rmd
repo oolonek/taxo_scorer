@@ -1,0 +1,77 @@
+---
+title: "Stats"
+---
+
+#Requested Files 
+```{r}
+#Input here weighed annotation result of ISDB
+input_weighed_ISDB_path <- "../Data/Weighted/ISDB_weighted.tsv"
+
+#Input here weighed annotation result of MSFinder
+input_weighed_MSFinder_path <- "../Data/Weighted/MSFinder_weighted.tsv"
+
+#Input here weighed annotation result of Sirius
+input_weighed_Sirius_path <- "../Data/Weighted/Sirius_weighted.tsv"
+
+#Only for the standards
+input_cleaned_STDS_path <- "../Data/Curated/STDS_cleaned.tsv"
+
+#DNP
+input <- "~/190602_DNP_TAXcof_CF.tsv"
+```
+
+#Requested Packages
+```{r}
+library(dplyr)
+library(feather)
+```
+
+Loading the files obtained after cleaning
+```{r}
+ISDBout_weighted <- read_feather(
+  input_weighed_ISDB_path
+  )
+
+MSFinderout_weighted <- read_feather(
+  input_weighed_MSFinder_path
+  )
+
+Siriusout_weighted <- read_feather(
+  input_weighed_Sirius_path
+  )
+
+STDS_tax <- read_feather(
+  input_cleaned_STDS_path
+  )
+
+File <- read_delim(
+  file = input,
+  delim = "\t", 
+  escape_double = FALSE,
+  trim_ws = TRUE
+  ) 
+```
+
+#Cleaning before statistics
+```{r}
+Clean_AM_MF <- File %>% 
+  filter(!is.na(Short_IK_DNP)) %>% 
+  filter(!is.na(Accurate_Mass_DNP) & !is.na(Molecule_Formula_DNP))
+```
+
+```{r}
+Distinct_MF <- Clean_AM_MF %>%  
+  group_by(Molecule_Formula_DNP) %>% 
+  filter(n()>1) %>% 
+  ungroup()
+```
+
+```{r}
+Count_MF <- Clean_AM_MF %>%
+ count(Molecule_Formula_DNP, sort = TRUE)
+```
+
+#Statistics
+```{r}
+summary(Count_MF)
+```

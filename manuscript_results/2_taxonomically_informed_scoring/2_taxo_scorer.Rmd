@@ -1,0 +1,155 @@
+---
+title: "TaxoWeighter"
+---
+
+#Lines having to be adapted to data
+###Inputs
+```{r}
+#Path to cleaned annotation result of ISDB
+input_cleaned_ISDB_path <- "../Data/Curated/ISDB_curated.tsv"
+
+#Path to cleaned annotation result of MSFinder
+input_cleaned_MSFinder_path <- "../Data/Curated/MSFinder_curated.tsv"
+
+#Path to cleaned annotation result of Sirius
+input_cleaned_Sirius_path <- "../Data/Curated/Sirius_curated.tsv"
+```
+
+###Outputs
+```{r}
+#Path to weighted annotation result of ISDB
+output_weighted_ISDB_path <- "../Data/Weighted/ISDB_weighted.tsv"
+
+#Path toweighted annotation result of MSFinder
+output_weighted_MSFinder_path <- "../Data/Weighted/MSFinder_weighted.tsv"
+
+#Path to weighted annotation result of Sirius
+output_weighted_Sirius_path <- "../Data/Weighted/Sirius_weighted.tsv"
+
+#Path to F1 scores
+output_f1_scores_path <- "../Data/Weighted/F1_scores.tsv"
+```
+
+###Requested packages
+```{r}
+library(feather)
+library(readr)
+library(dplyr)
+library(purrr)
+```
+
+Outputing packages versions
+```{r}
+packageVersion('feather')
+packageVersion('readr')
+packageVersion('dplyr')
+packageVersion('purrr')
+```
+
+Loading the files obtained after cleaning
+```{r}
+ISDBout_tax_STDS <- read_feather(input_cleaned_ISDB_path)
+
+MSFinderout_tax_STDS <- read_feather(input_cleaned_MSFinder_path)
+
+Siriusout_tax_STDS <- read_feather(input_cleaned_Sirius_path)
+```
+
+### Loading the function
+```{r}
+source("../Taxo_Functions/TaxoWeighting_Filtering_Plotting_functions.R")
+```
+
+###Applying the function
+```{r}
+ISDBout_unweighted <- TaxoWeighter(0, 0, 0, ISDBout_tax_STDS)
+MSFinderout_unweighted <- TaxoWeighter(0, 0, 0, MSFinderout_tax_STDS)
+Siriusout_unweighted <- TaxoWeighter(0, 0, 0, Siriusout_tax_STDS)
+
+ISDBout_weighted <- TaxoWeighter(1, 2, 3, ISDBout_tax_STDS)
+MSFinderout_weighted <- TaxoWeighter(1, 2, 3, MSFinderout_tax_STDS)
+Siriusout_weighted <- TaxoWeighter(1, 2, 3, Siriusout_tax_STDS)
+```
+
+###Outputing Rank 1
+```{r}
+ISDBout_unweighted_rank1 <- ISDBout_unweighted %>%
+     subset(RANK_FINAL == '1')
+MSFinderout_unweighted_rank1 <- MSFinderout_unweighted %>%
+     subset(RANK_FINAL == '1')
+Siriusout_unweighted_rank1 <- Siriusout_unweighted %>%
+     subset(RANK_FINAL == '1')
+
+ISDBout_weighted_rank1 <- ISDBout_weighted %>%
+     subset(RANK_FINAL == '1')
+MSFinderout_weighted_rank1 <- MSFinderout_weighted %>%
+     subset(RANK_FINAL == '1')
+Siriusout_weighted_rank1 <- Siriusout_weighted %>%
+     subset(RANK_FINAL == '1')
+```
+
+#Calculating F1 Scores
+```{r}
+TP_ISDB_weighted <- nrow(ISDBout_weighted_rank1)
+TP_ISDB_unweighted <- nrow(ISDBout_unweighted_rank1)
+
+TP_MSFinder_weighted <- nrow(MSFinderout_weighted_rank1)
+TP_MSFinder_unweighted <- nrow(MSFinderout_unweighted_rank1)
+
+TP_Sirius_weighted <- nrow(Siriusout_weighted_rank1)
+TP_Sirius_unweighted <- nrow(Siriusout_unweighted_rank1)
+
+TPplusFN_ISDB <- nrow(ISDBout_weighted)
+TPplusFN_MSFinder <- nrow(MSFinderout_weighted)
+TPplusFN_Sirius <- nrow(Siriusout_weighted)
+
+Recall_ISDB_weighted = TP_ISDB_weighted / TPplusFN_ISDB * 100
+Recall_MSFinder_weighted = TP_MSFinder_weighted / TPplusFN_MSFinder * 100
+Recall_Sirius_weighted = TP_Sirius_weighted / TPplusFN_Sirius * 100
+
+Precision_ISDB_weighted = TP_ISDB_weighted / 2107 * 100
+Precision_MSFinder_weighted = TP_MSFinder_weighted / 2107 * 100
+Precision_Sirius_weighted = TP_Sirius_weighted / 2107 * 100
+
+Recall_ISDB_unweighted = TP_ISDB_unweighted / TPplusFN_ISDB * 100
+Recall_MSFinder_unweighted = TP_MSFinder_unweighted / TPplusFN_MSFinder * 100
+Recall_Sirius_unweighted = TP_Sirius_unweighted / TPplusFN_Sirius * 100
+
+Precision_ISDB_unweighted = TP_ISDB_unweighted / 2107 * 100
+Precision_MSFinder_unweighted = TP_MSFinder_unweighted / 2107 * 100
+Precision_Sirius_unweighted = TP_Sirius_unweighted / 2107 * 100
+
+F1_score_ISDB_weighted <- 2 * (Precision_ISDB_weighted * Recall_ISDB_weighted) / (Precision_ISDB_weighted + Recall_ISDB_weighted) 
+F1_score_MSFinder_weighted <- 2 * (Precision_MSFinder_weighted * Recall_MSFinder_weighted) / (Precision_MSFinder_weighted + Recall_MSFinder_weighted)
+F1_score_Sirius_weighted <- 2 * (Precision_Sirius_weighted * Recall_Sirius_weighted) / (Precision_Sirius_weighted + Recall_Sirius_weighted)
+
+F1_score_ISDB_unweighted <- 2 * (Precision_ISDB_unweighted * Recall_ISDB_unweighted) / (Precision_ISDB_unweighted + Recall_ISDB_unweighted) 
+F1_score_MSFinder_unweighted <- 2 * (Precision_MSFinder_unweighted * Recall_MSFinder_unweighted) / (Precision_MSFinder_unweighted + Recall_MSFinder_unweighted)
+F1_score_Sirius_unweighted <- 2 * (Precision_Sirius_unweighted * Recall_Sirius_unweighted) / (Precision_Sirius_unweighted + Recall_Sirius_unweighted)
+
+F1_scores_unweighted <- c(
+        F1_score_ISDB_unweighted, 
+        F1_score_MSFinder_unweighted,
+        F1_score_Sirius_unweighted
+        )
+
+
+F1_scores_weighted <- c(
+        F1_score_ISDB_weighted,
+        F1_score_MSFinder_weighted,
+        F1_score_Sirius_weighted
+        )
+
+F1_scores <- tibble(Tool = c("1 - ISDB", "2 - MSFinder", "3 - Sirius"),
+        F1_scores_unweighted, 
+        F1_scores_weighted
+        )
+```
+
+#Exporting
+```{r}
+write_feather(Siriusout_weighted, output_weighted_Sirius_path)
+write_feather(MSFinderout_weighted, output_weighted_MSFinder_path)
+write_feather(ISDBout_weighted, output_weighted_ISDB_path)
+write_feather(F1_scores, output_f1_scores_path)
+```

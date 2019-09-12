@@ -1,0 +1,985 @@
+---
+title: "TaxoDesigneR"
+---
+
+#Requested Files 
+```{r}
+#Input here weighed annotation result of ISDB
+input_weighed_ISDB_path <- "../Data/Weighted/ISDB_weighted.tsv"
+
+#Input here weighed annotation result of MSFinder
+input_weighed_MSFinder_path <- "../Data/Weighted/MSFinder_weighted.tsv"
+
+#Input here weighed annotation result of Sirius
+input_weighed_Sirius_path <- "../Data/Weighted/Sirius_weighted.tsv"
+
+#F1 scores
+input_f1_scores_path <- "../Data/Weighted/F1_scores.tsv"
+
+#Only for the standards
+input_cleaned_STDS_path <- "../Data/Curated/STDS_cleaned.tsv"
+
+#DNP
+input <- "~/190602_DNP_TAXcof_CF.tsv"
+```
+
+#Requested Packages
+```{r}
+library(data.table)
+library(dplyr)
+library(eulerr)
+library(feather)
+library(plotly)
+library(readr)
+library(viridis)
+library(ggmosaic)
+library(RColorBrewer)
+library(htmlwidgets)
+```
+
+Loading the files obtained after cleaning
+```{r}
+ISDBout_weighted <- read_feather(
+  input_weighed_ISDB_path
+  )
+
+MSFinderout_weighted <- read_feather(
+  input_weighed_MSFinder_path
+  )
+
+Siriusout_weighted <- read_feather(
+  input_weighed_Sirius_path
+  )
+
+F1_scores <- read_feather(
+  input_f1_scores_path
+  )
+
+STDS_tax <- read_feather(
+  input_cleaned_STDS_path
+  )
+
+File <- read_delim(
+  file = input,
+  delim = "\t", 
+  escape_double = FALSE,
+  trim_ws = TRUE
+  ) 
+
+col_seq_12 <- brewer.pal(12, "Paired")
+```
+
+#Global Results
+Merging all results
+```{r}
+# we add a suffix to differentiate outputs
+
+ISDBout_tomerge <- ISDBout_weighted
+Siriusout_tomerge <- Siriusout_weighted 
+MSFinderout_tomerge <- MSFinderout_weighted 
+
+# we add a suffix to differentiate outputs
+
+colnames(ISDBout_tomerge) <- paste(colnames(ISDBout_tomerge), "ISDB", sep = "_")
+colnames(Siriusout_tomerge) <- paste(colnames(Siriusout_tomerge), "Sirius", sep = "_")
+colnames(MSFinderout_tomerge) <- paste(colnames(MSFinderout_tomerge), "MSFinder", sep = "_")
+
+# rename unique ids
+
+STDS_tax <- STDS_tax %>% 
+  mutate(ID_query = ID_STDS)
+ISDBout_tomerge <- ISDBout_tomerge %>% 
+  mutate(ID_query = ID_query_ISDB)
+Siriusout_tomerge <- Siriusout_tomerge %>% 
+  mutate(ID_query = ID_query_Sirius)
+MSFinderout_tomerge <- MSFinderout_tomerge %>% 
+  mutate(ID_query = ID_query_MSFinder)
+
+# and merge
+
+Global_Taxo <- left_join(STDS_tax, ISDBout_tomerge, by = "ID_query", all = TRUE)
+Global_Taxo <- left_join(Global_Taxo, Siriusout_tomerge, by = "ID_query", all = TRUE)
+Global_Taxo <- left_join(Global_Taxo, MSFinderout_tomerge, by = "ID_query", all = TRUE)
+```
+
+##Identified
+```{r}
+Identified <- Global_Taxo %>% 
+  filter(
+    ID_query == ID_query_Sirius | ID_query == ID_query_MSFinder | ID_query ==ID_query_ISDB
+    ) 
+```
+
+##Non-Identified
+```{r}
+Non_Identified <- anti_join(
+  STDS_tax,
+  Identified
+  )
+```
+
+##Biological Families
+```{r}
+Names_List_Families <- (unique(STDS_tax$Family_STDS))
+
+Counts_List_Families <- (unique(STDS_tax$Family_STDS))
+for(i in seq_along(Counts_List_Families)){Counts_List_Families[[i]] <- nrow(subset(STDS_tax, Family_STDS == Names_List_Families[[i]]))}
+
+Found_List_Families <- (unique(STDS_tax$Family_STDS))
+for(i in seq_along(Found_List_Families)){Found_List_Families[[i]] <- nrow(subset(Identified, Family_STDS == Names_List_Families[[i]]))}
+
+Missing_List_Families <- (unique(STDS_tax$Family_STDS))
+for(i in seq_along(Missing_List_Families)){Missing_List_Families[[i]] <- nrow(subset(Non_Identified,Family_STDS == Names_List_Families[[i]]))}
+
+Plotting_Families <- data.frame(Names_List_Families, as.numeric(Counts_List_Families), as.numeric(Found_List_Families), as.numeric(Missing_List_Families))
+
+Plotting_Families <- na.omit(mutate(Plotting_Families, Families_found_percent = round(100 * as.numeric.Found_List_Families. / as.numeric.Counts_List_Families., digits = 1), Families_not_found_percent = round(100 * as.numeric.Missing_List_Families. / as.numeric.Counts_List_Families., digits = 1)))
+
+Plotting_Families$Names_List_Families <- factor(Plotting_Families$Names_List_Families, levels = unique(Plotting_Families$Names_List_Families)[order(Plotting_Families$as.numeric.Counts_List_Families., decreasing = TRUE)])
+```
+
+```{r}
+Plotting_Families_2 <- Plotting_Families %>% 
+  filter(as.numeric.Counts_List_Families. >= 15)
+
+Plotting_Families_2$Names_List_Families <- factor(Plotting_Families_2$Names_List_Families, levels = unique(Plotting_Families_2$Names_List_Families)[order(Plotting_Families_2$as.numeric.Counts_List_Families., decreasing = TRUE)])
+
+File3 <- File %>% 
+  select(Kingdom_cof_DNP, Phylum_cof_DNP, Class_cof_DNP, Order_cof_DNP, Family_cof_DNP, Genus_cof_DNP, Species_cof_DNP)
+
+Plotting_Families_2$Names_List_Families <- as.character(Plotting_Families_2$Names_List_Families)
+
+Plotting_Families_3 <- left_join(
+  Plotting_Families_2, 
+  File3,
+  by = c(Names_List_Families = "Family_cof_DNP")
+  )
+
+Plotting_Families_3 <- Plotting_Families_3 %>% 
+  distinct(Names_List_Families, .keep_all = TRUE)
+
+Plotting_Families_3$Names_List_Families <- factor(Plotting_Families_3$Names_List_Families, levels = unique(Plotting_Families_3$Names_List_Families)[order(Plotting_Families_3$as.numeric.Counts_List_Families., decreasing = TRUE)])
+```
+
+##Mass densities
+```{r}
+File2 <- File %>% 
+  distinct(CRC_Number_DNP, .keep_all = TRUE) %>% 
+  filter(!is.na(Accurate_Mass_DNP))
+
+Global_Taxo2 <- Global_Taxo %>% 
+  filter(!is.na(Accurate_Mass_STDS))
+```
+
+```{r}
+density1 <- density(File2$Accurate_Mass_DNP)
+
+density2 <- density(Global_Taxo2$Accurate_Mass_STDS)
+```
+
+##Chemical diversity
+```{r}
+Count_Classes_cf <- Global_Taxo %>%
+ count(Class_cf_STDS, sort = TRUE) %>% 
+  mutate(Percent = 100* n / sum(n))
+```
+
+```{r}
+Classes_cf4pie <- Count_Classes_cf %>%
+  mutate(Class_cf_STDS = if_else(Percent < 1, "Less than 1%", Class_cf_STDS)) %>% 
+  filter(!is.na(Class_cf_STDS)) %>% 
+  group_by(Class_cf_STDS) %>% 
+  summarise_all(sum) %>% 
+  ungroup()
+```
+
+```{r}
+Count_Classes_DNP_cf <- File2 %>%
+ count(Class_cf_DNP, sort = TRUE) %>% 
+  mutate(Percent = 100* n / sum(n))
+```
+
+```{r}
+Classes_DNP_cf4pie <- Count_Classes_DNP_cf %>%
+  mutate(Class_cf_DNP = if_else(Percent < 1, "Less than 1%", Class_cf_DNP)) %>% 
+  filter(!is.na(Class_cf_DNP)) %>% 
+  group_by(Class_cf_DNP) %>% 
+  summarise_all(sum) %>% 
+  ungroup()
+```
+
+##MS instrument
+```{r}
+STDS_sourceinstr <- STDS_tax %>%
+  count(
+    sourceinstr_val_STDS,
+    sort = TRUE
+    )
+
+STDS_sourceinstr$QTOF = ifelse(grepl(pattern = "TOF|impact", x = STDS_sourceinstr$sourceinstr_val_STDS, ignore.case = T), STDS_sourceinstr$n, 0)
+STDS_sourceinstr$FT = ifelse(grepl(pattern = "FT|exactive|orbitrap", x = STDS_sourceinstr$sourceinstr_val_STDS, ignore.case = T), STDS_sourceinstr$n, 0)
+STDS_sourceinstr$IT = ifelse(grepl(pattern = "-IT$|ion trap", x = STDS_sourceinstr$sourceinstr_val_STDS, ignore.case = T), STDS_sourceinstr$n, 0)
+STDS_sourceinstr$QQQ = ifelse(grepl(pattern = "QQ", x = STDS_sourceinstr$sourceinstr_val_STDS, ignore.case = T), STDS_sourceinstr$n, 0)
+
+STDS_tax$MS_source_type <- STDS_tax$sourceinstr_val_STDS
+
+STDS_tax$MS_source_type = ifelse(grepl(pattern = "TOF|impact", x = STDS_tax$sourceinstr_val_STDS, ignore.case = T), 'TOF', STDS_tax$MS_source_type)
+STDS_tax$MS_source_type = ifelse(grepl(pattern = "FT|exactive|orbitrap", x = STDS_tax$sourceinstr_val_STDS, ignore.case = T), 'FT', STDS_tax$MS_source_type)
+STDS_tax$MS_source_type = ifelse(grepl(pattern = "-IT$|ion trap", x = STDS_tax$sourceinstr_val_STDS, ignore.case = T), 'IT', STDS_tax$MS_source_type)
+STDS_tax$MS_source_type = ifelse(grepl(pattern = "QQ", x = STDS_tax$sourceinstr_val_STDS, ignore.case = T), 'QQQ', STDS_tax$MS_source_type)
+```
+
+##Venn
+###initial
+```{r}
+Venn_initial = c(
+"Sirius_initial" = nrow(subset(Global_Taxo, 
+                       Global_Taxo$RANK_BEFORE_Sirius == 1)),
+"MSFinder_initial" = nrow(subset(Global_Taxo, 
+                         Global_Taxo$RANK_BEFORE_MSFinder == 1)),
+"ISDB_initial" = nrow(subset(Global_Taxo, 
+                     Global_Taxo$RANK_BEFORE_ISDB == 1)),
+"Sirius_initial&MSFinder_initial" = nrow(subset(Global_Taxo, 
+                                Global_Taxo$RANK_BEFORE_Sirius == 1 & 
+                                Global_Taxo$RANK_BEFORE_MSFinder == 1)),
+"MSFinder_initial&ISDB_initial" = nrow(subset(Global_Taxo,
+                              Global_Taxo$RANK_BEFORE_MSFinder == 1 & 
+                              Global_Taxo$RANK_BEFORE_ISDB == 1)),
+"Sirius_initial&ISDB_initial" = nrow(subset(Global_Taxo, 
+                            Global_Taxo$RANK_BEFORE_Sirius == 1 & 
+                            Global_Taxo$RANK_BEFORE_ISDB == 1)),
+"Sirius_initial&MSFinder_initial&ISDB_initial" = nrow(subset(Global_Taxo, 
+                                     Global_Taxo$RANK_BEFORE_Sirius == 1 & 
+                                     Global_Taxo$RANK_BEFORE_MSFinder == 1 &
+                                     Global_Taxo$RANK_BEFORE_ISDB == 1))
+)
+```
+
+###weighted
+```{r}
+Venn = c(
+"Sirius" = nrow(subset(Global_Taxo, Global_Taxo$RANK_FINAL_Sirius == 1)),
+"MSFinder" = nrow(subset(Global_Taxo, Global_Taxo$RANK_FINAL_MSFinder == 1)),
+"ISDB" = nrow(subset(Global_Taxo, Global_Taxo$RANK_FINAL_ISDB == 1)),
+"Sirius&MSFinder" = nrow(subset(Global_Taxo, Global_Taxo$RANK_FINAL_Sirius == 1 & Global_Taxo$RANK_FINAL_MSFinder == 1)),
+"MSFinder&ISDB" = nrow(subset(Global_Taxo, Global_Taxo$RANK_FINAL_MSFinder == 1 & Global_Taxo$RANK_FINAL_ISDB == 1)),
+"Sirius&ISDB" = nrow(subset(Global_Taxo, Global_Taxo$RANK_FINAL_Sirius == 1 & Global_Taxo$RANK_FINAL_ISDB == 1)),
+"Sirius&MSFinder&ISDB" = nrow(subset(Global_Taxo, Global_Taxo$RANK_FINAL_Sirius == 1 & Global_Taxo$RANK_FINAL_MSFinder == 1 & Global_Taxo$RANK_FINAL_ISDB == 1))
+)
+```
+
+##ROC
+```{r}
+ISDB <- 1:500
+for(i in seq_along(ISDB)){ISDB[[i]] <- c(nrow(subset(ISDBout_tomerge, RANK_BEFORE_ISDB <= i)))}
+Sirius <- 1:500
+for(i in seq_along(Sirius)){Sirius[[i]] <- c(nrow(subset(Siriusout_tomerge, RANK_BEFORE_Sirius <= i)))}
+MSFinder <- 1:500
+for(i in seq_along(MSFinder)){MSFinder[[i]] <- c(nrow(subset(MSFinderout_tomerge, RANK_BEFORE_MSFinder <= i)))}
+ISDB_Weighted <- 1:500
+for(i in seq_along(ISDB_Weighted)){ISDB_Weighted[[i]] <- c(nrow(subset(ISDBout_tomerge, RANK_FINAL_ISDB <= i)))}
+Sirius_Weighted <- 1:500
+for(i in seq_along(Sirius_Weighted)){Sirius_Weighted[[i]] <- c(nrow(subset(Siriusout_tomerge, RANK_FINAL_Sirius <= i)))}
+MSFinder_Weighted <- 1:500
+for(i in seq_along(MSFinder_Weighted)){MSFinder_Weighted[[i]] <- c(nrow(subset(MSFinderout_tomerge, RANK_FINAL_MSFinder <= i)))}
+
+ROC <- data.frame(ISDB, Sirius, MSFinder, ISDB_Weighted, Sirius_Weighted, MSFinder_Weighted)
+ROC <- rbind(c(0, 0, 0, 0, 0, 0), ROC)
+ROC$x <- 0:500
+ROC[1,7] <- 1
+```
+
+#Plotting
+##Setting fonts
+```{r}
+l <- list(
+  font = list(
+    family = "Helvetica",
+    size = 24,
+    color = '#000000',
+    bgcolor = "#34495E",
+    bordercolor = "#34495E",
+    borderwidth = 2))
+l2 <- list(
+  font = list(
+    family = "Helvetica",
+    size = 32,
+    color = '#000000',
+    bgcolor = "#34495E",
+    bordercolor = "#34495E",
+    borderwidth = 2),
+  x = 51,
+  y = 0.85)
+f <- list(
+  family = "Helvetica",
+  size = 24,
+  color = '#000000')
+
+w <- list(
+  family = "Helvetica",
+  size = 24,
+  color = '#FFFFFF')
+
+f2 <- list(
+  family = "Helvetica",
+  weight = "bold",
+  size = 32,
+  color = '#000000')
+
+m <- list(
+  l = 0,
+  r = 0,
+  b = 0,
+  t = 0,
+  pad = 10
+)
+```
+
+##Set vs DNP Masses density
+```{r}
+dens_plot <- plot_ly(
+  x = ~density1$x,
+  y = ~density1$y,
+  type = 'scatter', 
+  mode = 'lines',
+  name = 'DNP', 
+  line = list(
+    width = 2,
+    color = 'rgb(68, 1, 84)')
+  )%>%
+add_trace(
+  opacity = 0.5,
+  x = ~density2$x,
+  y = ~density2$y,
+  name = 'Set', 
+    line = list(
+    dash = "dash",
+    width = 2,
+    color = 'rgb(33, 144, 140)')
+  )%>%
+layout(
+      autosize = FALSE,
+    width = 800, 
+    height = 600,
+  xaxis = list(
+    nticks = 20,
+    range = c(0,2000),
+    title = 'Accurate Mass [Da]',
+    showgrid = FALSE, 
+    zeroline = FALSE, 
+    automargin = TRUE,
+    showticklabels = TRUE,
+    titlefont = f2, 
+    tickfont = f
+    ),
+    yaxis = list(
+      title = "Density",
+      showgrid = FALSE,
+      showline = FALSE,
+      zeroline = FALSE,
+      automargin = TRUE,
+      showticklabels = TRUE,
+      titlefont = f2, 
+      tickfont = f),
+  legend = list(font=f, x = 1, y = 1)
+  )
+dens_plot
+```
+
+##Set vs DNP Chemical diversity
+```{r}
+Chemical_diversity_comparison <- Classes_DNP_cf4pie %>% 
+  
+plot_ly() %>%
+  add_pie(
+    data = Classes_DNP_cf4pie$Percent, 
+    labels = Classes_DNP_cf4pie$Class_cf_DNP, 
+    values = Classes_DNP_cf4pie$n,
+    name = "DNP"
+    ) %>%
+  add_pie(
+    data = Classes_cf4pie$Percent, 
+    labels = Classes_cf4pie$Class_cf_STDS, 
+    values = Classes_cf4pie$n,
+    name = "Set", 
+    domain = list(row = 1, column = 0)) %>% 
+  layout(
+    annotations = list(
+      list(x = 1 , y = 1, font= f2, text = "DNP", showarrow = F, xref = 'paper', yref = 'paper'),
+      list(x = 1 , y = 0, font = f2, text = "Set", showarrow = F, xref = 'paper', yref = 'paper')
+      ),
+    autosize = FALSE,
+    width = 1000, 
+    height = 900,
+    margin = m,
+    autosize = TRUE,
+    showlegend = TRUE,
+    grid = list(
+      rows = 2, 
+      columns = 1
+      ),
+    colorway = col_seq_12,
+      #c("#440154FF", "#481769FF", "#472A7AFF", "#433D84FF", "#3D4E8AFF", "#355E8DFF" ,"#2E6D8EFF", "#297B8EFF", "#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF", "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF", "#FDE725FF"),
+    xaxis = list(
+      showgrid = FALSE, 
+      zeroline = TRUE, 
+      automargin = TRUE,
+      showticklabels = TRUE,
+      titlefont = f2
+      ),
+    yaxis = list(
+      showgrid = FALSE, 
+      zeroline = TRUE, 
+      automargin = TRUE,
+      showticklabels = TRUE,
+      titlefont = f2, 
+      tickfont = f
+    ),
+font = f,
+    legend =  list(
+      font = f
+      #orientation = 'h'
+      )
+)
+
+Chemical_diversity_comparison
+```
+
+##Set Biological Families
+```{r}
+Families_in_set_2 <- Plotting_Families_3 %>%
+  
+plot_ly() %>%
+  
+add_trace(x = ~Names_List_Families, name =~Kingdom_cof_DNP, 
+          y = ~as.numeric.Counts_List_Families., 
+          color = (~Kingdom_cof_DNP),
+          name = "", alpha = 1, type = "bar",
+          text = paste(Plotting_Families_3[,"as.numeric.Counts_List_Families."]),
+          textposition = 'auto',
+          textfont = w,
+          colors = c("#440154FF", 
+                     "#FDE725FF",
+                     "#21908CFF"
+                     )
+          ) %>%  
+  
+layout(autosize = FALSE,    width = 1200, 
+    height = 900,
+    barmode = "stacked",
+       xaxis = list(
+         autorange = TRUE, 
+         showgrid = FALSE, 
+         zeroline = TRUE, 
+         automargin = TRUE,
+         showticklabels = TRUE,
+         titlefont = f2, 
+         tickfont = f,
+         tickangle = 300,
+         title = "Family"),
+       yaxis = list(
+         showgrid = FALSE, 
+         zeroline = FALSE, 
+         automargin = TRUE,
+         showticklabels = TRUE,
+         titlefont = f2, 
+         tickfont = f, 
+         title = "Counts"
+         ),
+       legend = list(font = f2, x = 0.8, y = 0.9)
+
+       )
+
+Families_in_set_2
+```
+
+##MS instruments
+```{r}
+colourCount = length(unique(STDS_tax$lib_val_STDS))
+getPalette = colorRampPalette(brewer.pal(14, "Paired"))
+
+order1 <- ggplot(data = STDS_tax) +
+  geom_mosaic(aes(x = product(MS_source_type), fill=(lib_val_STDS)), na.rm=TRUE) +
+  labs(x = "Instrument sources") +
+  theme(plot.title = element_text(size = rel(24))) +
+  scale_fill_manual(name = "Library", values = getPalette(colourCount)) +
+  # scale_fill_viridis(discrete=TRUE) +
+  # scale_fill_jco() +
+  theme(legend.title = element_text(color = "black", size = 16, family = "Helvetica"),
+        legend.text = element_text(color = "black", size = 12, family = "Helvetica"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_blank(),
+        axis.title.x = element_text(color = "black", size = 16, family = "Helvetica"),
+        axis.text.x = element_text(color = "black", size = 12, family = "Helvetica"),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()
+        )
+
+ms <- ggplotly(order1)
+
+ms
+```
+
+##F1 scores
+```{r}
+F1 <- F1_scores %>%
+plot_ly() %>%
+add_trace(x = F1_scores$Tool, 
+          y = F1_scores$F1_scores_unweighted, 
+          marker = list(color = 'rgb(68, 1, 84)'),
+          name = "Initial", alpha = 1, type = "bar",
+          text = paste(round(F1_scores$F1_scores_unweighted, digits = 1)),
+          textposition = 'auto',
+          textfont = w
+          )%>%
+add_trace(x = F1_scores$Tool,
+          y = F1_scores$F1_scores_weighted, 
+          marker = list(color = 'rgb(33, 144, 140)'),
+          name = "Weighted", alpha = 1, type = "bar",
+          text = paste(round(F1_scores$F1_scores_weighted, digits = 1)),
+          textposition = 'auto',
+          textfont = w
+          )%>%
+layout(barmode = "group",
+       xaxis = list(
+         showgrid = FALSE, 
+         zeroline = FALSE, 
+         title = FALSE, 
+         titlefont = f2, 
+         tickfont = f
+         ),
+       yaxis = list(
+         showgrid = FALSE,
+         zeroline = FALSE, 
+         title = "F1 score [%]", 
+         titlefont = f,
+         tickfont = f,
+         range = c(0,100)
+         ),
+       legend = list(
+         font = f
+         )
+)
+
+F1
+```
+
+##Venn
+###initial
+```{r}
+v_initial <- euler(Venn_initial, 
+           input="union", 
+           shape="ellipse")
+
+v1 <- plot(v_initial,
+           legend = TRUE,
+           fills = c("#21908CFF", "#440154FF", "#FDE725FF"), 
+           alpha = 0.8,
+           edges = FALSE,
+           labels = FALSE,
+           quantities = l2
+           )
+v1
+```
+
+```{r eval=FALSE, include=FALSE}
+pdf("6_Venn_initial.pdf")
+
+v_initial <- euler(Venn_initial, 
+           input="union", 
+           shape="ellipse")
+
+v1 <- plot(v_initial,
+           legend = TRUE,
+           fills = c("#21908CFF", "#440154FF", "#FDE725FF"), 
+           alpha = 0.8,
+           edges = FALSE,
+           labels = FALSE,
+           quantities = l2
+           )
+v1
+
+# Close the PDF file's associated graphics device (necessary to finalize the output)
+dev.off()
+```
+
+###weighted
+```{r}
+v <- euler(Venn, 
+           input = "union", 
+           shape = "ellipse"
+                   )
+v2 <- plot(v,
+          legend = TRUE,
+          fills = c("#21908CFF", "#440154FF", "#FDE725FF"), 
+          alpha=0.8,
+          edges = FALSE,
+          labels = FALSE,
+          quantities = l2
+          )
+v2
+```
+
+```{r eval=FALSE, include=FALSE}
+pdf("7_Venn_weighted.pdf")
+
+v <- euler(Venn, 
+           input = "union", 
+           shape = "ellipse"
+                   )
+v2 <- plot(v,
+          legend = TRUE,
+          fills = c("#21908CFF", "#440154FF", "#FDE725FF"), 
+          alpha=0.8,
+          edges = FALSE,
+          labels = FALSE,
+          quantities = l2
+          )
+v2
+
+# Close the PDF file's associated graphics device (necessary to finalize the output)
+dev.off()
+```
+
+##ROC
+```{r}
+roc <- plot_ly(ROC, x = ~ x) %>%
+  add_trace(
+    y = ~ISDB, 
+    name = 'ISDB',
+    line = list(
+      shape = "hv", 
+      color = "#FDE725FF"
+      ),
+    marker = list(
+      size = 0,
+      opacity = 0
+      )
+    )%>%
+  add_trace(
+    y = ~ ISDB_Weighted, 
+    name = 'ISDB Weighted', 
+    line = list(
+      shape = "hv",
+      color = "#FDE725FF", 
+      dash = 'dash'
+      ), 
+    marker = list(
+      size = 0, 
+      opacity = 0
+      )
+    ) %>%
+  add_trace(
+    y = ~ Sirius,
+    name = 'Sirius', 
+    line = list(
+      shape = "hv",
+      color = "#21908CFF"
+      ),
+    marker = list(
+      size = 0, 
+      opacity = 0
+      )
+    ) %>%
+  add_trace(
+    y = ~ Sirius_Weighted,
+    name = 'Sirius Weighted', 
+    line = list(
+      shape = "hv",
+      color = "#21908CFF",
+      dash = 'dash'
+      ), 
+    marker = list(
+      size = 0,
+      opacity = 0
+      )
+    ) %>%
+  add_trace(
+    y = ~ MSFinder,
+    name = 'MSFinder',
+    line = list(
+      shape = "hv",
+      color = "#440154FF"
+      ),
+    marker = list(
+      size = 0,
+      opacity = 0
+      )
+    ) %>%
+  add_trace(
+    y = ~ MSFinder_Weighted,
+    name = 'MSFinder Weighted', 
+    line = list(
+      shape = "hv", 
+      color = "#440154FF", 
+      dash = 'dash'
+      ), 
+    marker = list(
+      size = 0,
+      opacity = 0
+      )
+    ) %>% 
+  layout(
+    autosize = FALSE,
+    width = 900, 
+    height = 500,
+    margin = m,
+    colorway = c("#C0C0C0"),
+    barmode = "stack",
+    xaxis = list(
+      showgrid = FALSE,
+      zeroline = FALSE,
+      title = "Rank", 
+      titlefont = f2,
+      tickfont = f, 
+      range = c(0,500),  
+      automargin = TRUE
+      ),
+    yaxis = list(
+      showgrid = FALSE,
+      zeroline = FALSE,
+      title = "Correct short IK annotations",
+      titlefont = f2,
+      tickfont = f,  
+      automargin = TRUE
+      ),
+    legend = l,
+    showmarker = F
+    )
+
+roc
+```
+
+##Optimization
+###1
+```{r}
+o_1 <- plot_ly(x = Results_degraded_01_01$ScoreDT$score_fam, 
+               y = Results_degraded_01_01$ScoreDT$score_gen, 
+               z = Results_degraded_01_01$ScoreDT$score_sp, 
+               color = Results_degraded_01_01$ScoreDT$Score,
+               type = 'scatter3d', 
+               mode = 'lines + markers',
+               marker = list(
+                 size = 4
+                 )
+               ) %>%
+
+layout(scene = list(
+         xaxis = list(
+           title = 'fam',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwidth = 2
+           ),
+         yaxis = list(
+           title = 'gen',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2
+           ),
+         zaxis = list(
+           title = 'sp',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2)
+          )
+       )
+o_1
+```
+
+###2
+```{r}
+o_2 <- plot_ly(x = Results_degraded_02_01$ScoreDT$score_fam, 
+               y = Results_degraded_02_01$ScoreDT$score_gen, 
+               z = Results_degraded_02_01$ScoreDT$score_sp, 
+               color = Results_degraded_02_01$ScoreDT$Score,
+               type = 'scatter3d', 
+               mode = 'lines + markers',
+               marker = list(
+                 size = 4
+                 )
+               ) %>%
+
+layout(scene = list(
+         xaxis = list(
+           title = 'fam',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwidth = 2
+           ),
+         yaxis = list(
+           title = 'gen',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2
+           ),
+         zaxis = list(
+           title = 'sp',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2)
+          )
+       )
+o_2
+```
+
+###3
+```{r}
+o_3 <- plot_ly(x = Results_degraded_03_01$ScoreDT$score_fam, 
+               y = Results_degraded_03_01$ScoreDT$score_gen, 
+               z = Results_degraded_03_01$ScoreDT$score_sp, 
+               color = Results_degraded_03_01$ScoreDT$Score,
+               type = 'scatter3d', 
+               mode = 'lines + markers',
+               marker = list(
+                 size = 4
+                 )
+               ) %>%
+
+layout(scene = list(
+         xaxis = list(
+           title = 'fam',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwidth = 2
+           ),
+         yaxis = list(
+           title = 'gen',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2
+           ),
+         zaxis = list(
+           title = 'sp',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2)
+          )
+       )
+o_3
+```
+
+###4
+```{r}
+o_4 <- plot_ly(x = Results_degraded_04_01$ScoreDT$score_fam, 
+               y = Results_degraded_04_01$ScoreDT$score_gen, 
+               z = Results_degraded_04_01$ScoreDT$score_sp, 
+               color = Results_degraded_04_01$ScoreDT$Score,
+               type = 'scatter3d', 
+               mode = 'lines + markers',
+               marker = list(
+                 size = 4
+                 )
+               ) %>%
+
+layout(scene = list(
+         xaxis = list(
+           title = 'fam',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwidth = 2
+           ),
+         yaxis = list(
+           title = 'gen',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2
+           ),
+         zaxis = list(
+           title = 'sp',
+           type = 'lin',
+           zerolinewidth = 1,
+           ticklen = 5,
+           gridwith = 2)
+          )
+       )
+o_4
+```
+
+##Suppl. Bias low/high masses
+```{r}
+Accurate_masses <- plot_ly(
+  opacity = 0.6, 
+  alpha = 0.6,
+  type = 'box'
+  ) %>%
+add_trace(y = ~Identified$pepmass_val_STDS -1.007276, 
+          name = "Identified"
+          )%>%
+add_trace(y = ~Non_Identified$pepmass_val_STDS -1.007276,
+          name = "Non-Identified"
+          )%>%
+layout(
+  colorway = c(
+    '#C67383',
+    '#73C6B6'
+    ),
+  xaxis = list(
+    autorange = TRUE, 
+    showgrid = FALSE,
+    zeroline = FALSE,
+    titlefont = f2,
+    tickfont = f
+    ),
+  yaxis = list(
+    autorange = TRUE, 
+    showgrid = FALSE, 
+    zeroline = FALSE,
+    title = "Accurate mass [Da]",
+    titlefont = f, 
+    tickfont = f
+    ),
+  legend = l
+  )
+
+Accurate_masses
+```
+
+```{r}
+summary(Identified$pepmass_val_STDS)
+summary(Non_Identified$pepmass_val_STDS)
+```
+
+#Export
+##ORCA_PDF
+```{r eval=FALSE, include=FALSE}
+Sys.setenv('MAPBOX_TOKEN' = 'sk.eyJ1IjoiYWRhZmVkZSIsImEiOiJjanNwcnExNWwwNWVwNDRudDM2amJzb2htIn0.-qqOsWXic14b5Yxj1oPPlw')
+orca(dens_plot, "1.svg")
+orca(Chemical_diversity_comparison, "2.svg")
+orca(Families_in_set_2, "3.svg")
+orca(ms, "4.svg")
+orca(F1, "5.svg")
+orca(roc, "8.svg")
+orca(Accurate_masses, "9.svg")
+orca(o_1, "10.svg")
+orca(o_2, "11.svg")
+orca(o_3, "12.svg")
+orca(o_4, "12.svg")
+```
+
+##html
+```{r}
+saveWidget(as_widget(dens_plot), "1.html")
+saveWidget(as_widget(Chemical_diversity_comparison), "2.html")
+saveWidget(as_widget(Families_in_set_2), "3.html")
+saveWidget(as_widget(ms), "4.html")
+saveWidget(as_widget(F1), "5.html")
+saveWidget(as_widget(roc), "8.html")
+saveWidget(as_widget(Accurate_masses), "9.html")
+saveWidget(as_widget(o_1), "10.html")
+saveWidget(as_widget(o_2), "11.html")
+saveWidget(as_widget(o_3), "12.html")
+saveWidget(as_widget(o_4), "13.html")
+```
