@@ -1,5 +1,5 @@
 ---
-title: "TaxoWeighter"
+title: "Taxo Scorer user version"
 ---
 
 #Lines having to be adapted to data
@@ -23,8 +23,8 @@ species <- "Glaucium grandiflorum"
 ###Inputs
 ```{r}
 #Path to ISDB result
-input_ISDB_path <- "~/Dropbox/Research_UNIGE/Papers_PMA/2019/Taxo_paper_Frontiers_Chemodiversity/Data_Mohsen/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top50.out"
-#"/Users/rutza/Downloads/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top50.out"
+input_ISDB_path <- "https://osf.io/5uabh/download"
+
 
 #Path to metadata with structures/biosources information
 Metadata_path <- "~/190402_DNP_TAXcof_CF.tsv"
@@ -34,8 +34,7 @@ Metadata_path <- "~/190402_DNP_TAXcof_CF.tsv"
 ```{r}
 #Path to weighed annotation result of ISDB
 output_weighed_ISDB_path <- file(
-  '~/Dropbox/Research_UNIGE/Papers_PMA/2019/Taxo_paper_Frontiers_Chemodiversity/Data_Mohsen/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top5_repond_lastuserscript.out', 
-#  '/Users/rutza/Downloads/GNPS_glaucium_pos_190629_CI/GNPS_glaucium_pos_190629_CI_results_top_repond.tsv',
+  '~/Data/Glaucium_ISDB_DNP_results_top5_taxo_scored.tsv',
   encoding = "UTF-8"
   )
 ```
@@ -199,7 +198,7 @@ ISDBout_merged_taxed = left_join(ISDBout_top, Metadata_cleaned, by = c("Short_IK
 
 ### Loading the function
 ```{r}
-source("Taxo_Functions/TaxoWeighting_Filtering_Plotting_functions.R")
+source("./manuscript_results/2_taxonomically_informed_scoring/taxo_functions.R")
 ```
 
 ###Applying the function
