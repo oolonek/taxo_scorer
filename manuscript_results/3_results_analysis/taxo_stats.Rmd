@@ -5,42 +5,45 @@ title: "Stats"
 #Requested Files 
 ```{r}
 #Input here weighed annotation result of ISDB
-input_weighed_ISDB_path <- "../Data/Weighted/ISDB_weighted.tsv"
+input_weighed_ISDB_path <- "https://osf.io/yhvxg/download"
 
 #Input here weighed annotation result of MSFinder
-input_weighed_MSFinder_path <- "../Data/Weighted/MSFinder_weighted.tsv"
+input_weighed_MSFinder_path <- "https://osf.io/xs52m/download"
 
 #Input here weighed annotation result of Sirius
-input_weighed_Sirius_path <- "../Data/Weighted/Sirius_weighted.tsv"
+input_weighed_Sirius_path <- "https://osf.io/keug3/download"
+
 
 #Only for the standards
-input_cleaned_STDS_path <- "../Data/Curated/STDS_cleaned.tsv"
+input_cleaned_STDS_path <- "https://osf.io/rp3g2/download"
+
 
 #DNP
 input <- "~/190602_DNP_TAXcof_CF.tsv"
+
 ```
 
 #Requested Packages
 ```{r}
 library(dplyr)
-library(feather)
+library(readr)
 ```
 
 Loading the files obtained after cleaning
 ```{r}
-ISDBout_weighted <- read_feather(
+ISDBout_weighted <- read_csv(
   input_weighed_ISDB_path
   )
 
-MSFinderout_weighted <- read_feather(
+MSFinderout_weighted <- read_csv(
   input_weighed_MSFinder_path
   )
 
-Siriusout_weighted <- read_feather(
+Siriusout_weighted <- read_csv(
   input_weighed_Sirius_path
   )
 
-STDS_tax <- read_feather(
+STDS_tax <- read_csv(
   input_cleaned_STDS_path
   )
 
