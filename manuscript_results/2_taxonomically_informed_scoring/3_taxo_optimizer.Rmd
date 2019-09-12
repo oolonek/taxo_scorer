@@ -1,24 +1,24 @@
 ---
-title: "TaxoOptimizer"
+title: "Taxo Optimizer"
 ---
 
 #Lines having to be adapted to data
 ###Inputs
 ```{r}
+
 #Path to cleaned annotation result of ISDB
-input_cleaned_ISDB_path <- "../Data/Curated/ISDB_curated.tsv"
+input_cleaned_ISDB_path <- "https://osf.io/s26gx/download"
 
 #Path to cleaned annotation result of MSFinder
-input_cleaned_MSFinder_path <- "../Data/Curated/MSFinder_curated.tsv"
+input_cleaned_MSFinder_path <- "https://osf.io/n8vs3/download"
 
 #Path to cleaned annotation result of Sirius
-input_cleaned_Sirius_path <- "../Data/Curated/Sirius_curated.tsv"
+input_cleaned_Sirius_path <- "https://osf.io/qh6wy/download"
 
 ```
 
 ###Requested packages
 ```{r}
-library(feather)
 library(readr)
 library(dplyr)
 library(purrr)
@@ -39,16 +39,16 @@ packageVersion('ParBayesianOptimization')
 
 ### Loading the Functions
 ```{r}
-source("../Taxo_Functions/TaxoWeighting_Filtering_Plotting_functions.R")
+source("./taxo_functions.R")
 ```
 
 Loading the files obtained after cleaning
 ```{r}
-ISDBout_tax_STDS <- read_feather(input_cleaned_ISDB_path)
+ISDBout_tax_STDS <- read_csv(input_cleaned_ISDB_path)
 
-MSFinderout_tax_STDS <- read_feather(input_cleaned_MSFinder_path)
+MSFinderout_tax_STDS <- read_csv(input_cleaned_MSFinder_path)
 
-Siriusout_tax_STDS <- read_feather(input_cleaned_Sirius_path)
+Siriusout_tax_STDS <- read_csv(input_cleaned_Sirius_path)
 ```
 
 # the df is randomized and splitted
