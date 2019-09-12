@@ -1,38 +1,37 @@
 ---
-title: "TaxoWeighter"
+title: "Taxo Scorer"
 ---
 
 #Lines having to be adapted to data
 ###Inputs
 ```{r}
 #Path to cleaned annotation result of ISDB
-input_cleaned_ISDB_path <- "../Data/Curated/ISDB_curated.tsv"
+input_cleaned_ISDB_path <- "https://osf.io/s26gx/download"
 
 #Path to cleaned annotation result of MSFinder
-input_cleaned_MSFinder_path <- "../Data/Curated/MSFinder_curated.tsv"
+input_cleaned_MSFinder_path <- "https://osf.io/n8vs3/download"
 
 #Path to cleaned annotation result of Sirius
-input_cleaned_Sirius_path <- "../Data/Curated/Sirius_curated.tsv"
+input_cleaned_Sirius_path <- "https://osf.io/qh6wy/download"
 ```
 
 ###Outputs
 ```{r}
 #Path to weighted annotation result of ISDB
-output_weighted_ISDB_path <- "../Data/Weighted/ISDB_weighted.tsv"
+output_weighted_ISDB_path <- "~/Data/Weighted/ISDB_DNP_scored.tsv"
 
 #Path toweighted annotation result of MSFinder
-output_weighted_MSFinder_path <- "../Data/Weighted/MSFinder_weighted.tsv"
+output_weighted_MSFinder_path <- "~/Data/Weighted/MS_Finder_scored.tsv"
 
 #Path to weighted annotation result of Sirius
-output_weighted_Sirius_path <- "../Data/Weighted/Sirius_weighted.tsv"
+output_weighted_Sirius_path <- "~/Data/Weighted/Sirius_scored.tsv"
 
 #Path to F1 scores
-output_f1_scores_path <- "../Data/Weighted/F1_scores.tsv"
+output_f1_scores_path <- "~/Data/Weighted/F1_scores.tsv"
 ```
 
 ###Requested packages
 ```{r}
-library(feather)
 library(readr)
 library(dplyr)
 library(purrr)
@@ -40,7 +39,6 @@ library(purrr)
 
 Outputing packages versions
 ```{r}
-packageVersion('feather')
 packageVersion('readr')
 packageVersion('dplyr')
 packageVersion('purrr')
@@ -48,16 +46,16 @@ packageVersion('purrr')
 
 Loading the files obtained after cleaning
 ```{r}
-ISDBout_tax_STDS <- read_feather(input_cleaned_ISDB_path)
+ISDBout_tax_STDS <- read_csv(input_cleaned_ISDB_path)
 
-MSFinderout_tax_STDS <- read_feather(input_cleaned_MSFinder_path)
+MSFinderout_tax_STDS <- read_csv(input_cleaned_MSFinder_path)
 
-Siriusout_tax_STDS <- read_feather(input_cleaned_Sirius_path)
+Siriusout_tax_STDS <- read_csv(input_cleaned_Sirius_path)
 ```
 
 ### Loading the function
 ```{r}
-source("../Taxo_Functions/TaxoWeighting_Filtering_Plotting_functions.R")
+source("./taxo_functions.R")
 ```
 
 ###Applying the function
@@ -148,8 +146,8 @@ F1_scores <- tibble(Tool = c("1 - ISDB", "2 - MSFinder", "3 - Sirius"),
 
 #Exporting
 ```{r}
-write_feather(Siriusout_weighted, output_weighted_Sirius_path)
-write_feather(MSFinderout_weighted, output_weighted_MSFinder_path)
-write_feather(ISDBout_weighted, output_weighted_ISDB_path)
-write_feather(F1_scores, output_f1_scores_path)
+write_csv(Siriusout_weighted, output_weighted_Sirius_path)
+write_csv(MSFinderout_weighted, output_weighted_MSFinder_path)
+write_csv(ISDBout_weighted, output_weighted_ISDB_path)
+write_csv(F1_scores, output_f1_scores_path)
 ```
