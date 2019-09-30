@@ -27,16 +27,6 @@ library(doParallel)
 library(ParBayesianOptimization)
 ```
 
-Outputing packages versions
-```{r}
-packageVersion('readr')
-packageVersion('dplyr')
-packageVersion('purrr')
-packageVersion('plotly')
-packageVersion('doParallel')
-packageVersion('ParBayesianOptimization')
-```
-
 ### Loading the Functions
 ```{r}
 source("./taxo_functions.R")
@@ -309,7 +299,6 @@ Results_degraded_01_02 <- BayesianOptimization(
     eps = 0.0
    )
  
-  
 Results_degraded_01_03 <- BayesianOptimization(
    FUN = TaxoWeighingTool,
    bounds = bounds, 
@@ -454,7 +443,6 @@ Results_degraded_04_02 <- BayesianOptimization(
    eps = 0.0
    )
  
-  
 Results_degraded_04_03 <- BayesianOptimization(
    FUN = TaxoWeighingTool_04,
    bounds = bounds,
@@ -692,7 +680,6 @@ Results_Sirius_degraded_01_02 <- BayesianOptimization(
    kappa = 2 * 2.576,
    eps = 0.0
    )
-   
       
 Results_Sirius_degraded_01_03 <- BayesianOptimization(
    FUN = TaxoWeighingTool_Sirius_03,
@@ -706,7 +693,6 @@ Results_Sirius_degraded_01_03 <- BayesianOptimization(
    eps = 0.0
    )
    
-     
 Results_Sirius_01_04 <- BayesianOptimization(
    FUN = TaxoWeighingTool_Sirius_04,
    bounds = bounds,
