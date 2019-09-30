@@ -2,7 +2,6 @@
 title: "Taxo Cleaner"
 ---
 
-
 #Lines having to be adapted to data
 ###Desired n° of candidates 
 ```{r}
@@ -21,7 +20,7 @@ input_MSFinder_path <- "https://osf.io/2h7y9/download"
 input_Sirius_path <- "https://osf.io/57tw6/download"
 
 #Path to metadata with structures/biosources information
-Metadata_path <- ""
+Metadata_path <- "..."
 
 #Path to GNPS file containing Spectrum ID
 Spectrum_ID_file_path <- "https://osf.io/un8ey/download"
@@ -54,46 +53,81 @@ library(splitstackshape)
 library(stringr)
 ```
 
-Outputing packages versions
-```{r}
-packageVersion('data.table')
-packageVersion('readr')
-packageVersion('dplyr')
-packageVersion('splitstackshape')
-packageVersion('stringr')
-```
-
 Loading the output files, standard file, and metadata file
 ```{r}
-ISDBout <- read_delim(input_ISDB_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+ISDBout <- read_delim(
+  file = input_ISDB_path,
+  delim = "\t",
+  escape_double = FALSE,
+  trim_ws = TRUE
+  )
 
-MSFinderout <- read_delim(input_MSFinder_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+MSFinderout <- read_delim(
+  file = input_MSFinder_path,
+  delim = "\t",
+  escape_double = FALSE, 
+  trim_ws = TRUE
+  )
 
-Siriusout <- read_delim(input_Sirius_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+Siriusout <- read_delim(
+  file = input_Sirius_path, 
+  delim = "\t",
+  escape_double = FALSE,
+  trim_ws = TRUE
+  )
 
-STDS_tax <- read_delim(input_STDS_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+STDS_tax <- read_delim(
+  file = input_STDS_path,
+  delim = "\t",
+  escape_double = FALSE, 
+  trim_ws = TRUE
+  )
 
-Metadata <- read_delim(Metadata_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+Metadata <- read_delim(
+  file = Metadata_path, 
+  delim = "\t",
+  escape_double = FALSE,
+  trim_ws = TRUE
+  )
 
-Spectrum_ID_file <- read_delim(Spectrum_ID_file_path, "\t", escape_double = FALSE, trim_ws = TRUE)
+Spectrum_ID_file <- read_delim(
+  file = Spectrum_ID_file_path,
+  delim = "\t", 
+  escape_double = FALSE,
+  trim_ws = TRUE
+  )
 ```
 
-# Preliminary cleaning
+#Preliminary cleaning
 ###ISDB
 Adding Spectrum ID
 ```{r}
-Spectrum_ID_file$observation <- 1:nrow(Spectrum_ID_file)
+Spectrum_ID_file$observation <- 1 : nrow(Spectrum_ID_file)
 
 Spectrum_ID_file <- Spectrum_ID_file %>%
-  select(observation, spectrum_id_val)
+  select(
+    observation, 
+    spectrum_id_val
+    )
 
-ISDBout = left_join(ISDBout, Spectrum_ID_file, by = c("cluster index" = "observation"), match = "all")
+ISDBout = left_join(
+  ISDBout, 
+  Spectrum_ID_file,
+  by = c(
+    "cluster index" = "observation"
+    ),
+  match = "all"
+  )
 ```
 
 Keeping required columns
 ```{r}
 ISDBout <- ISDBout %>% 
-  select(spectrum_id_val, InChIKey_DNP, Spectral_Score_DNP)
+  select(
+    spectrum_id_val,
+    InChIKey_DNP,
+    Spectral_Score_DNP
+    )
 ```
 
 Splitting columns
@@ -122,12 +156,19 @@ ISDBout_cleaned <- ISDBout %>%
 
 Adding Cluster Index
 ```{r}
-ISDBout_merged = left_join(ISDBout_cleaned, ISDBout_melted)
+ISDBout_merged = left_join(
+  ISDBout_cleaned,
+  ISDBout_melted
+  )
 ```
 
 Generating ShortIK
 ```{r}
-tempIK <- str_split_fixed(ISDBout_merged$InChIKey_DNP, "-", 3)
+tempIK <- str_split_fixed(
+  string = ISDBout_merged$InChIKey_DNP,
+  pattern = "-", 
+  n =3
+  )
 
 ISDBout_merged$"Short_IK_ISDB" = tempIK[,1]
 ```
@@ -156,7 +197,12 @@ MSFinderout_melted <- melt(setDT(MSFinderout), id = ,
 Keeping required columns
 ```{r}
 MSFinderout_melted <- MSFinderout_melted %>% 
-  select(Title, Rank, 'Total score', InChIKey)
+  select(
+    Title, 
+    Rank,
+    'Total score', 
+    InChIKey
+    )
 ```
 
 Getting proper short IK
@@ -186,7 +232,12 @@ Siriusout <- Siriusout %>%
 
 ```{r}
 Siriusout <- Siriusout%>%
-  select(inchikey2D_1_1, inchikey2D_2, rank, score)
+  select(
+    inchikey2D_1_1, 
+    inchikey2D_2,
+    rank, 
+    score
+    )
 ```
 
 ```{r}
@@ -196,7 +247,28 @@ sirius_unique <- Siriusout[!duplicated(Siriusout$inchikey2D_1_1),]
 ###Metadata
 ```{r}
 Metadata_cleaned <- Metadata %>% 
-  select(Short_IK_DNP, Kingdom, Phylum, Class, Order, Family, Genus, Species, Subspecies, Kingdom_cf, Superclass_cf, Class_cf, Subclass_cf, Parent_Level_1_cf, Parent_Level_2_cf, Parent_Level_3_cf, Parent_Level_4_cf, Parent_Level_5_cf, Parent_Level_6_cf, Accurate_Mass)
+  select(
+    Short_IK_DNP,
+    Kingdom,
+    Phylum, 
+    Class, 
+    Order,
+    Family,
+    Genus,
+    Species, 
+    Subspecies, 
+    Kingdom_cf, 
+    Superclass_cf,
+    Class_cf,
+    Subclass_cf, 
+    Parent_Level_1_cf, 
+    Parent_Level_2_cf,
+    Parent_Level_3_cf,
+    Parent_Level_4_cf, 
+    Parent_Level_5_cf,
+    Parent_Level_6_cf,
+    Accurate_Mass
+    )
 ```
 
 ###STDS
@@ -208,7 +280,32 @@ colnames(STDS_tax)[7]<-"ID_STDS"
 
 ```{r}
 STDS_cleaned <- STDS_tax %>% 
-  select(ID_STDS, Short_IK_STDS, Kingdom_STDS, Phylum_STDS, Class_STDS, Order_STDS, Family_STDS, Genus_STDS, Species_STDS, Subspecies_STDS, Kingdom_cf_STDS, Superclass_cf_STDS, Class_cf_STDS, Subclass_cf_STDS, Parent_Level_1_cf_STDS, Parent_Level_2_cf_STDS, Parent_Level_3_cf_STDS, Parent_Level_4_cf_STDS, Parent_Level_5_cf_STDS, Parent_Level_6_cf_STDS, Accurate_Mass_STDS, pepmass_val_STDS, sourceinstr_val_STDS, lib_val_STDS)
+  select(
+    ID_STDS,
+    Short_IK_STDS, 
+    Kingdom_STDS,
+    Phylum_STDS, 
+    Class_STDS,
+    Order_STDS,
+    Family_STDS,
+    Genus_STDS,
+    Species_STDS,
+    Subspecies_STDS,
+    Kingdom_cf_STDS,
+    Superclass_cf_STDS,
+    Class_cf_STDS,
+    Subclass_cf_STDS,
+    Parent_Level_1_cf_STDS, 
+    Parent_Level_2_cf_STDS,
+    Parent_Level_3_cf_STDS,
+    Parent_Level_4_cf_STDS,
+    Parent_Level_5_cf_STDS,
+    Parent_Level_6_cf_STDS,
+    Accurate_Mass_STDS,
+    pepmass_val_STDS, 
+    sourceinstr_val_STDS,
+    lib_val_STDS
+    )
 ```
 
 ###Harmonizing outputs
@@ -243,21 +340,63 @@ ISDBout_top <- filter(ISDBout, Rank_query <= top_candidates)
 
 #Adding metadata
 ```{r}
-Siriusout_merged_taxed = left_join(Siriusout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
+Siriusout_merged_taxed = left_join(
+  Siriusout_top, 
+  Metadata_cleaned,
+  by = c(
+    "Short_IK_query" = "Short_IK_DNP"
+    ),
+  match = "all"
+  )
 
-MSFinderout_merged_taxed = left_join(MSFinderout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
+MSFinderout_merged_taxed = left_join(
+  MSFinderout_top,
+  Metadata_cleaned, 
+  by = c(
+    "Short_IK_query" = "Short_IK_DNP"
+    ), 
+  match = "all"
+  )
 
-ISDBout_merged_taxed = left_join(ISDBout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
+ISDBout_merged_taxed = left_join(
+  ISDBout_top, 
+  Metadata_cleaned,
+  by = c(
+    "Short_IK_query" = "Short_IK_DNP"
+    ), 
+  match = "all"
+  )
 ```
 
 #Merging with standards
 Merging files by unique ID
 ```{r}
-Siriusout_tax_STDS = left_join(Siriusout_merged_taxed, STDS_cleaned, by = c("ID_query" = "ID_STDS"), match = "all")
+Siriusout_tax_STDS = left_join(
+  Siriusout_merged_taxed,
+  STDS_cleaned, 
+  by = c(
+    "ID_query" = "ID_STDS"
+    ),
+  match = "all"
+  )
 
-MSFinderout_tax_STDS = left_join(MSFinderout_merged_taxed, STDS_cleaned, by = c("ID_query" = "ID_STDS"), match = "all")
+MSFinderout_tax_STDS = left_join(
+  MSFinderout_merged_taxed,
+  STDS_cleaned, 
+  by = c(
+    "ID_query" = "ID_STDS"
+    ),
+  match = "all"
+  )
 
-ISDBout_tax_STDS = left_join(ISDBout_merged_taxed, STDS_cleaned, by = c("ID_query" = "ID_STDS"), match = "all")
+ISDBout_tax_STDS = left_join(
+  ISDBout_merged_taxed, 
+  STDS_cleaned,
+  by = c(
+    "ID_query" = "ID_STDS"
+    ),
+  match = "all"
+  )
 ```
 
 Matching with the standards to get the correct hits
