@@ -1,38 +1,38 @@
 ---
-title: "Taxo Scorer user version"
+title: "Taxo Scorer (user version)"
 ---
 
 #Lines having to be adapted to data
-###Desired n° of initial candidates 
+
+##Desired n° of initial candidates 
 ```{r}
 top_initial <- 50
 ```
 
-###Desired n° of final candidate(s) 
+##Desired n° of final candidate(s) 
 ```{r}
 top_final <- 5
 ```
 
-###Taxonomical info of your sample(s)
+##Taxonomical info of your sample(s)
 ```{r}
 family <- "Papaveraceae"
 genus <- "Glaucium"
 species <- "Glaucium grandiflorum"
 ```
 
-###Inputs
+##Input
 ```{r}
-#Path to ISDB result
+#Path to initial annotation result
 input_ISDB_path <- "https://osf.io/5uabh/download"
-
 
 #Path to metadata with structures/biosources information
 Metadata_path <- "~/190402_DNP_TAXcof_CF.tsv"
 ```
 
-###Output
+##Output
 ```{r}
-#Path to weighed annotation result of ISDB
+#Path to weigthed annotation result
 output_weighed_ISDB_path <- file(
   '~/Data/Glaucium_ISDB_DNP_results_top5_taxo_scored.tsv',
   encoding = "UTF-8"
@@ -49,17 +49,7 @@ library(stringr)
 library(purrr)
 ```
 
-Outputing packages versions
-```{r}
-packageVersion('data.table')
-packageVersion('readr')
-packageVersion('dplyr')
-packageVersion('splitstackshape')
-packageVersion('stringr')
-packageVersion('purrr')
-```
-
-Loading the files
+#Loading the files
 ```{r}
 ISDBout <- read_delim(
   input_ISDB_path, 
@@ -75,8 +65,7 @@ Metadata <- read_delim(
   )
 ```
 
-# Preliminary cleaning
-###ISDB
+#Preliminary cleaning
 Splitting columns
 ```{r}
 ISDBout <- ISDBout %>%
@@ -138,7 +127,7 @@ ISDBout_melted$Genus_Bio <- genus
 ISDBout_melted$Species_Bio <- species
 ```
 
-###Harmonizing outputs
+Harmonizing output
 ```{r}
 ISDBout <- ISDBout_melted%>%
   mutate_at(vars(matches("Rank")), list(as.numeric))%>%
@@ -165,7 +154,7 @@ ISDBout_top <- ISDBout %>%
   filter(Rank_query <= top_initial)
 ```
 
-###Metadata
+#Metadata
 ```{r}
 Metadata_cleaned <- Metadata %>% 
   select(
@@ -191,17 +180,18 @@ Metadata_cleaned <- Metadata %>%
     )
 ```
 
-#Adding metadata
+Adding metadata
 ```{r}
 ISDBout_merged_taxed = left_join(ISDBout_top, Metadata_cleaned, by = c("Short_IK_query" = "Short_IK_DNP"), match = "all")
 ```
 
-### Loading the function
+#Function
+Loading
 ```{r}
 source("./manuscript_results/2_taxonomically_informed_scoring/taxo_functions.R")
 ```
 
-###Applying the function
+Applying
 ```{r}
 ISDBout_weighted <- TaxoWeighter_UseR(0.81, 1.62, 2.55, ISDBout_merged_taxed)
 ```
