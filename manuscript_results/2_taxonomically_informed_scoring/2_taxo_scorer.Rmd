@@ -37,13 +37,6 @@ library(dplyr)
 library(purrr)
 ```
 
-Outputing packages versions
-```{r}
-packageVersion('readr')
-packageVersion('dplyr')
-packageVersion('purrr')
-```
-
 Loading the files obtained after cleaning
 ```{r}
 ISDBout_tax_STDS <- read_csv(input_cleaned_ISDB_path)
@@ -130,7 +123,6 @@ F1_scores_unweighted <- c(
         F1_score_MSFinder_unweighted,
         F1_score_Sirius_unweighted
         )
-
 
 F1_scores_weighted <- c(
         F1_score_ISDB_weighted,
