@@ -6,28 +6,28 @@ title: "Taxo Scorer"
 ###Inputs
 ```{r}
 #Path to cleaned annotation result of ISDB
-input_cleaned_ISDB_path <- "https://osf.io/s26gx/download"
+input_cleaned_ISDB_path <- "../Data/Curated/ISDB_DNP_output_curated.tsv"
 
 #Path to cleaned annotation result of MSFinder
-input_cleaned_MSFinder_path <- "https://osf.io/n8vs3/download"
+input_cleaned_MSFinder_path <- "../Data/Curated/MS_Finder_output_curated.tsv"
 
 #Path to cleaned annotation result of Sirius
-input_cleaned_Sirius_path <- "https://osf.io/qh6wy/download"
+input_cleaned_Sirius_path <- "../Data/Curated/Sirius_output_curated.tsv"
 ```
 
 ###Outputs
 ```{r}
 #Path to weighted annotation result of ISDB
-output_weighted_ISDB_path <- "~/Data/Weighted/ISDB_DNP_scored.tsv"
+output_weighted_ISDB_path <- "../Data/Weighted/ISDB_DNP_scored.tsv"
 
 #Path to weighted annotation result of MSFinder
-output_weighted_MSFinder_path <- "~/Data/Weighted/MS_Finder_scored.tsv"
+output_weighted_MSFinder_path <- "../Data/Weighted/MS_Finder_scored.tsv"
 
 #Path to weighted annotation result of Sirius
-output_weighted_Sirius_path <- "~/Data/Weighted/Sirius_scored.tsv"
+output_weighted_Sirius_path <- "../Data/Weighted/Sirius_scored.tsv"
 
 #Path to F1 scores
-output_f1_scores_path <- "~/Data/Weighted/F1_scores.tsv"
+output_f1_scores_path <- "../Data/Weighted/F1_scores.tsv"
 ```
 
 ###Requested packages

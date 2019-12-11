@@ -20,7 +20,7 @@ input_MSFinder_path <- "https://osf.io/2h7y9/download"
 input_Sirius_path <- "https://osf.io/57tw6/download"
 
 #Path to metadata with structures/biosources information
-Metadata_path <- "..."
+Metadata_path <- "~/190602_DNP_TAXcof_CF.tsv"
 
 #Path to GNPS file containing Spectrum ID
 Spectrum_ID_file_path <- "https://osf.io/un8ey/download"
@@ -32,16 +32,16 @@ input_STDS_path <- "https://osf.io/ye4gx/download"
 ###Outputs
 ```{r}
 #Path to curated result of ISDB
-output_ISDB_path <- "~/Data/Curated/ISDB_DNP_output_curated.tsv"
+output_ISDB_path <- "../Data/Curated/ISDB_DNP_output_curated.tsv"
 
 #Path to curated result of MSFinder
-output_MSFinder_path <- "~/Data/Curated/MS_Finder_output_curated.tsv"
+output_MSFinder_path <- "../Data/Curated/MS_Finder_output_curated.tsv"
 
 #Path to curated result of Sirius
-output_Sirius_path <- "~/Data/Curated/Sirius_output_curated.tsv"
+output_Sirius_path <- "../Data/Curated/Sirius_output_curated.tsv"
 
 #Path to curated standards
-output_STDS_path <- "~/Data/Curated/benchmarking_dataset_metadata_curated.tsv"
+output_STDS_path <- "../Data/Curated/benchmarking_dataset_metadata_curated.tsv"
 ```
 
 #Requested packages
@@ -249,25 +249,25 @@ sirius_unique <- Siriusout[!duplicated(Siriusout$inchikey2D_1_1),]
 Metadata_cleaned <- Metadata %>% 
   select(
     Short_IK_DNP,
-    Kingdom,
-    Phylum, 
-    Class, 
-    Order,
-    Family,
-    Genus,
-    Species, 
-    Subspecies, 
-    Kingdom_cf, 
-    Superclass_cf,
-    Class_cf,
-    Subclass_cf, 
-    Parent_Level_1_cf, 
-    Parent_Level_2_cf,
-    Parent_Level_3_cf,
-    Parent_Level_4_cf, 
-    Parent_Level_5_cf,
-    Parent_Level_6_cf,
-    Accurate_Mass
+    Kingdom = Kingdom_cof_DNP,
+    Phylum = Phylum_cof_DNP, 
+    Class = Class_cof_DNP, 
+    Order = Order_cof_DNP,
+    Family = Family_cof_DNP,
+    Genus = Genus_cof_DNP,
+    Species = Species_cof_DNP, 
+    Subspecies = Subspecies_cof_DNP, 
+    Kingdom_cf = Kingdom_cf_DNP, 
+    Superclass_cf = Superclass_cf_DNP,
+    Class_cf = Class_cf_DNP,
+    Subclass_cf = Subclass_cf_DNP, 
+    Parent_Level_1_cf = Parent_Level_1_cf_DNP, 
+    Parent_Level_2_cf = Parent_Level_2_cf_DNP,
+    Parent_Level_3_cf = Parent_Level_3_cf_DNP,
+    Parent_Level_4_cf = Parent_Level_4_cf_DNP, 
+    Parent_Level_5_cf = Parent_Level_5_cf_DNP,
+    Parent_Level_6_cf =  Parent_Level_6_cf_DNP,
+    Accurate_Mass = Accurate_Mass_DNP
     )
 ```
 

@@ -5,16 +5,14 @@ title: "Taxo Optimizer"
 #Lines having to be adapted to data
 ###Inputs
 ```{r}
-
 #Path to cleaned annotation result of ISDB
-input_cleaned_ISDB_path <- "https://osf.io/s26gx/download"
+input_cleaned_ISDB_path <- "../Data/Curated/ISDB_DNP_output_curated.tsv"
 
 #Path to cleaned annotation result of MSFinder
-input_cleaned_MSFinder_path <- "https://osf.io/n8vs3/download"
+input_cleaned_MSFinder_path <- "../Data/Curated/MS_Finder_output_curated.tsv"
 
 #Path to cleaned annotation result of Sirius
-input_cleaned_Sirius_path <- "https://osf.io/qh6wy/download"
-
+input_cleaned_Sirius_path <- "../Data/Curated/Sirius_output_curated.tsv"
 ```
 
 ###Requested packages
@@ -44,7 +42,7 @@ Siriusout_tax_STDS <- read_csv(input_cleaned_Sirius_path)
 # the df is randomized and splitted
 ```{r}
 ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1 : n()))
-df <- split(ISDBout_tax_STDS_entry_random, sample(1 : 4, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1 : 8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
 ```
 
 # Now we alter the taxonomical metadata at three levels
@@ -55,14 +53,36 @@ df$`2`$Genus <- 'NULL'
 df$`3`$Species <- 'NULL'
 df$`3`$Genus <- 'NULL'
 df$`3`$Family <- 'NULL'
+df$`4`$Species <- 'NULL'
+df$`4`$Genus <- 'NULL'
+df$`4`$Family <- 'NULL'
+df$`4`$Order <- 'NULL'
+df$`5`$Species <- 'NULL'
+df$`5`$Genus <- 'NULL'
+df$`5`$Family <- 'NULL'
+df$`5`$Order <- 'NULL'
+df$`5`$Class <- 'NULL'
+df$`6`$Species <- 'NULL'
+df$`6`$Genus <- 'NULL'
+df$`6`$Family <- 'NULL'
+df$`6`$Order <- 'NULL'
+df$`6`$Class <- 'NULL'
+df$`6`$Phylum <- 'NULL'
+df$`7`$Species <- 'NULL'
+df$`7`$Genus <- 'NULL'
+df$`7`$Family <- 'NULL'
+df$`7`$Order <- 'NULL'
+df$`7`$Class <- 'NULL'
+df$`7`$Phylum <- 'NULL'
+df$`7`$Kingdom <- 'NULL'
 
-ISDBout_tax_STDS_degraded_04 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`)
+ISDBout_tax_STDS_degraded_08 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
 ```
 
 # the df is randomized and split
 ```{r}
 Sirius_tax_STDS_entry_random <- slice(Siriusout_tax_STDS, sample(1 : n()))
-df <- split(Sirius_tax_STDS_entry_random, sample(1 : 4, nrow(Sirius_tax_STDS_entry_random), replace = TRUE))
+df <- split(Sirius_tax_STDS_entry_random, sample(1 : 8, nrow(Sirius_tax_STDS_entry_random), replace = TRUE))
 ```
 
 # Now we alter the taxonomical metadata at three levels
@@ -73,8 +93,30 @@ df$`2`$Genus <- 'NULL'
 df$`3`$Species <- 'NULL'
 df$`3`$Genus <- 'NULL'
 df$`3`$Family <- 'NULL'
+df$`4`$Species <- 'NULL'
+df$`4`$Genus <- 'NULL'
+df$`4`$Family <- 'NULL'
+df$`4`$Order <- 'NULL'
+df$`5`$Species <- 'NULL'
+df$`5`$Genus <- 'NULL'
+df$`5`$Family <- 'NULL'
+df$`5`$Order <- 'NULL'
+df$`5`$Class <- 'NULL'
+df$`6`$Species <- 'NULL'
+df$`6`$Genus <- 'NULL'
+df$`6`$Family <- 'NULL'
+df$`6`$Order <- 'NULL'
+df$`6`$Class <- 'NULL'
+df$`6`$Phylum <- 'NULL'
+df$`7`$Species <- 'NULL'
+df$`7`$Genus <- 'NULL'
+df$`7`$Family <- 'NULL'
+df$`7`$Order <- 'NULL'
+df$`7`$Class <- 'NULL'
+df$`7`$Phylum <- 'NULL'
+df$`7`$Kingdom <- 'NULL'
 
-Sirius_tax_STDS_degraded_04 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`)
+Sirius_tax_STDS_degraded_08 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
 ```
 
 ```{r}
