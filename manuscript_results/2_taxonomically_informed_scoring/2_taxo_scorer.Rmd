@@ -53,13 +53,13 @@ source("./taxo_functions.R")
 
 ###Applying the function
 ```{r}
-ISDBout_unweighted <- TaxoWeighter(0, 0, 0, ISDBout_tax_STDS)
-MSFinderout_unweighted <- TaxoWeighter(0, 0, 0, MSFinderout_tax_STDS)
-Siriusout_unweighted <- TaxoWeighter(0, 0, 0, Siriusout_tax_STDS)
+ISDBout_unweighted <- TaxoWeighter(0, 0, 0, 0, 0, 0, 0, ISDBout_tax_STDS)
+MSFinderout_unweighted <- TaxoWeighter(0, 0, 0, 0, 0, 0, 0, MSFinderout_tax_STDS)
+Siriusout_unweighted <- TaxoWeighter(0, 0, 0, 0, 0, 0, 0, Siriusout_tax_STDS)
 
-ISDBout_weighted <- TaxoWeighter(1, 2, 3, ISDBout_tax_STDS)
-MSFinderout_weighted <- TaxoWeighter(1, 2, 3, MSFinderout_tax_STDS)
-Siriusout_weighted <- TaxoWeighter(1, 2, 3, Siriusout_tax_STDS)
+ISDBout_weighted <- TaxoWeighter(1, 2, 3, 4, 5, 6, 7, ISDBout_tax_STDS)
+MSFinderout_weighted <- TaxoWeighter(1, 2, 3, 4, 5, 6, 7, MSFinderout_tax_STDS)
+Siriusout_weighted <- TaxoWeighter(1, 2, 3, 4, 5, 6, 7, Siriusout_tax_STDS)
 ```
 
 ###Outputing Rank 1
