@@ -346,7 +346,7 @@ ISDBout_tax_STDS_degraded_08 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df
 
 # Load functions
 ```{r}
-TaxoWeighingTool_01 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_01 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_01)
   # appends a column name indicating the applied score
@@ -408,7 +408,7 @@ TaxoWeighingTool_01 <- function(score_kin, score_phy, score_cla, score_ord, scor
 ```
 
 ```{r}
-TaxoWeighingTool_02 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_02 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_02)
   # appends a column name indicating the applied score
@@ -470,7 +470,7 @@ TaxoWeighingTool_02 <- function(score_kin, score_phy, score_cla, score_ord, scor
 ```
 
 ```{r}
-TaxoWeighingTool_03 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_03 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_03)
   # appends a column name indicating the applied score
@@ -532,7 +532,7 @@ TaxoWeighingTool_03 <- function(score_kin, score_phy, score_cla, score_ord, scor
 ```
 
 ```{r}
-TaxoWeighingTool_04 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_04 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_04)
   # appends a column name indicating the applied score
@@ -594,7 +594,7 @@ TaxoWeighingTool_04 <- function(score_kin, score_phy, score_cla, score_ord, scor
 ```
 
 ```{r}
-TaxoWeighingTool_05 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_05 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_05)
   # appends a column name indicating the applied score
@@ -656,7 +656,7 @@ TaxoWeighingTool_05 <- function(score_kin, score_phy, score_cla, score_ord, scor
 ```
 
 ```{r}
-TaxoWeighingTool_06 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_06 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_06)
   # appends a column name indicating the applied score
@@ -718,7 +718,7 @@ TaxoWeighingTool_06 <- function(score_kin, score_phy, score_cla, score_ord, scor
 ```
 
 ```{r}
-TaxoWeighingTool_07 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_07 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_07)
   # appends a column name indicating the applied score
@@ -780,7 +780,7 @@ TaxoWeighingTool_07 <- function(score_kin, score_phy, score_cla, score_ord, scor
 ```
 
 ```{r}
-TaxoWeighingTool_08 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe, dfsel)
+TaxoWeighingTool_08 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe)
   {
   df <- as.data.frame(ISDBout_tax_STDS_degraded_08)
   # appends a column name indicating the applied score
@@ -858,7 +858,7 @@ Results_degraded_01 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -873,7 +873,7 @@ Results_degraded_02 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -888,7 +888,7 @@ Results_degraded_03 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -903,7 +903,7 @@ Results_degraded_04 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -918,7 +918,7 @@ Results_degraded_05 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -933,7 +933,7 @@ Results_degraded_06 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -948,7 +948,7 @@ Results_degraded_07 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -963,7 +963,7 @@ Results_degraded_08 <- BayesianOptimization(
    bounds = bounds, 
    initPoints = 10,
    bulkNew = 10,
-   nIters = 1000,
+   nIters = 256,
    gsPoints = 10,
    parallel = TRUE,
    acq = "ei" ,
@@ -973,5 +973,53 @@ Results_degraded_08 <- BayesianOptimization(
 ```
 
 ```{r}
-df_test <- as.data.frame(Results_degraded_01_01$BestPars)
+library(MonteCarlo)
+```
+
+```{r}
+Results_degraded_MC_01 <- MonteCarlo(
+   func =  TaxoWeighingTool_01,
+   nrep = 10,
+   param_list = bounds,
+   ncpus = 10
+   )
+```
+
+```{r}
+df_test <- as.data.frame(Results_degraded_01$BestPars)
+```
+
+```{r}
+source("./taxo_functions.R")
+```
+
+###Applying the function
+```{r}
+ISDBout_weighted_new <- TaxoWeighter(1, 2, 3, 4, 5, 6, 7, ISDBout_tax_STDS_degraded_01)
+
+ISDBout_weighted_old <- TaxoWeighter_old(1, 2, 3, ISDBout_tax_STDS_degraded_01)
+```
+
+```{r}
+TP_new <- ISDBout_weighted_new %>% 
+   filter(RANK_FINAL == 1)
+
+TP_old <- ISDBout_weighted_old %>% 
+   filter(RANK_FINAL == 1)
+```
+
+```{r}
+Inc_new <- ISDBout_weighted_new %>% 
+   filter(RANK_FINAL <= RANK_BEFORE)
+
+Inc_old <- ISDBout_weighted_old %>% 
+   filter(RANK_FINAL <= RANK_BEFORE)
+```
+
+```{r}
+Dec_new <- ISDBout_weighted %>% 
+   filter(RANK_FINAL > RANK_BEFORE)
+
+Dec_old <- ISDBout_weighted_old %>% 
+   filter(RANK_FINAL > RANK_BEFORE)
 ```
