@@ -281,6 +281,7 @@ colnames(STDS_tax)[7]<-"ID_STDS"
 ```{r}
 STDS_cleaned <- STDS_tax %>% 
   select(
+    FoundName_STDS,
     ID_STDS,
     Short_IK_STDS, 
     Kingdom_STDS,
@@ -310,7 +311,7 @@ STDS_cleaned <- STDS_tax %>%
 
 ###Harmonizing outputs
 ```{r}
-Siriusout <- Siriusout%>%
+Siriusout <- Siriusout %>%
   mutate_at(vars(matches("rank")),list(as.numeric))%>%
   select(ID_query = inchikey2D_1_1, Short_IK_query = inchikey2D_2, Rank_query = rank, Score_query = score)%>%
   mutate(Score_query = as.numeric(Score_query))%>%
@@ -318,13 +319,13 @@ Siriusout <- Siriusout%>%
   mutate(ID_query = as.character(ID_query))%>%
   data.table()
 
-MSFinderout <- MSFinderout_melted%>%
+MSFinderout <- MSFinderout_melted %>%
   mutate_at(vars(matches("Rank")),list(as.numeric))%>%
   select(ID_query = Title, Short_IK_query = Short_IK, Rank_query = Rank, Score_query =`Total score`)%>%
   data.table()
 MSFinderout <- MSFinderout[MSFinderout$Short_IK_query != '',]
 
-ISDBout <- ISDBout_merged%>%
+ISDBout <- ISDBout_merged %>%
   mutate_at(vars(matches("Rank")),list(as.numeric))%>%
   select(ID_query = spectrum_id_val, Short_IK_query = Short_IK_ISDB, Rank_query = Rank, Score_query = Spectral_Score_DNP) %>%
   data.table()
