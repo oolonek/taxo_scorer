@@ -5,16 +5,8 @@ title: "Taxo Optimizer"
 #Lines having to be adapted to data
 ###Inputs
 ```{r}
-
-#Path to cleaned annotation result of ISDB
-input_cleaned_ISDB_path <- "https://osf.io/s26gx/download"
-
-#Path to cleaned annotation result of MSFinder
-input_cleaned_MSFinder_path <- "https://osf.io/n8vs3/download"
-
-#Path to cleaned annotation result of Sirius
-input_cleaned_Sirius_path <- "https://osf.io/qh6wy/download"
-
+# Path to cleaned annotation result of ISDB
+input_cleaned_ISDB_path <- "../Data/Curated/ISDB_DNP_output_curated.tsv"
 ```
 
 ###Requested packages
@@ -27,724 +19,999 @@ library(doParallel)
 library(ParBayesianOptimization)
 ```
 
-### Loading the Functions
-```{r}
-source("./taxo_functions.R")
-```
-
 Loading the files obtained after cleaning
 ```{r}
 ISDBout_tax_STDS <- read_csv(input_cleaned_ISDB_path)
-
-MSFinderout_tax_STDS <- read_csv(input_cleaned_MSFinder_path)
-
-Siriusout_tax_STDS <- read_csv(input_cleaned_Sirius_path)
 ```
 
 # the df is randomized and splitted
 ```{r}
-ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1 : n()))
-df <- split(ISDBout_tax_STDS_entry_random, sample(1 : 4, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
 ```
 
-# Now we alter the taxonomical metadata at three levels
+# Now we alter the taxonomical metadata at all levels
 ```{r}
-df$`1`$Species <- 'NULL'
-df$`2`$Species <- 'NULL'
-df$`2`$Genus <- 'NULL'
-df$`3`$Species <- 'NULL'
-df$`3`$Genus <- 'NULL'
-df$`3`$Family <- 'NULL'
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
 
-ISDBout_tax_STDS_degraded_04 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`)
+ISDBout_tax_STDS_degraded_01 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
 ```
 
-# the df is randomized and split
+# the df is randomized and splitted
 ```{r}
-Sirius_tax_STDS_entry_random <- slice(Siriusout_tax_STDS, sample(1 : n()))
-df <- split(Sirius_tax_STDS_entry_random, sample(1 : 4, nrow(Sirius_tax_STDS_entry_random), replace = TRUE))
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
 ```
 
-# Now we alter the taxonomical metadata at three levels
+# Now we alter the taxonomical metadata at all levels
 ```{r}
-df$`1`$Species <- 'NULL'
-df$`2`$Species <- 'NULL'
-df$`2`$Genus <- 'NULL'
-df$`3`$Species <- 'NULL'
-df$`3`$Genus <- 'NULL'
-df$`3`$Family <- 'NULL'
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
 
-Sirius_tax_STDS_degraded_04 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`)
+ISDBout_tax_STDS_degraded_02 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
 ```
 
+# the df is randomized and splitted
 ```{r}
-registerDoParallel(cores = 8)
-getDoParWorkers()
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+```
+
+# Now we alter the taxonomical metadata at all levels
+```{r}
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
+
+ISDBout_tax_STDS_degraded_03 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
+```
+
+# the df is randomized and splitted
+```{r}
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+```
+
+# Now we alter the taxonomical metadata at all levels
+```{r}
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
+
+ISDBout_tax_STDS_degraded_04 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
+```
+
+# the df is randomized and splitted
+```{r}
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+```
+
+# Now we alter the taxonomical metadata at all levels
+```{r}
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
+
+ISDBout_tax_STDS_degraded_05 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
+```
+
+# the df is randomized and splitted
+```{r}
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+```
+
+# Now we alter the taxonomical metadata at all levels
+```{r}
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
+
+ISDBout_tax_STDS_degraded_06 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
+```
+
+# the df is randomized and splitted
+```{r}
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+```
+
+# Now we alter the taxonomical metadata at all levels
+```{r}
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
+
+ISDBout_tax_STDS_degraded_07 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
+```
+
+# the df is randomized and splitted
+```{r}
+ISDBout_tax_STDS_entry_random <- slice(ISDBout_tax_STDS, sample(1:n()))
+df <- split(ISDBout_tax_STDS_entry_random, sample(1:8, nrow(ISDBout_tax_STDS_entry_random), replace = TRUE))
+```
+
+# Now we alter the taxonomical metadata at all levels
+```{r}
+df$`1`$Species <- "NULL"
+df$`2`$Species <- "NULL"
+df$`2`$Genus <- "NULL"
+df$`3`$Species <- "NULL"
+df$`3`$Genus <- "NULL"
+df$`3`$Family <- "NULL"
+df$`4`$Species <- "NULL"
+df$`4`$Genus <- "NULL"
+df$`4`$Family <- "NULL"
+df$`4`$Order <- "NULL"
+df$`5`$Species <- "NULL"
+df$`5`$Genus <- "NULL"
+df$`5`$Family <- "NULL"
+df$`5`$Order <- "NULL"
+df$`5`$Class <- "NULL"
+df$`6`$Species <- "NULL"
+df$`6`$Genus <- "NULL"
+df$`6`$Family <- "NULL"
+df$`6`$Order <- "NULL"
+df$`6`$Class <- "NULL"
+df$`6`$Phylum <- "NULL"
+df$`7`$Species <- "NULL"
+df$`7`$Genus <- "NULL"
+df$`7`$Family <- "NULL"
+df$`7`$Order <- "NULL"
+df$`7`$Class <- "NULL"
+df$`7`$Phylum <- "NULL"
+df$`7`$Kingdom <- "NULL"
+
+ISDBout_tax_STDS_degraded_08 <- rbind(df$`1`, df$`2`, df$`3`, df$`4`, df$`5`, df$`6`, df$`7`, df$`8`)
 ```
 
 # Load functions
 ```{r}
-TaxoWeighingTool <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(ISDBout_tax_STDS_degraded)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-}
+TaxoWeighingTool_01 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_01)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
 
-TaxoWeighingTool_02 <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(ISDBout_tax_STDS_degraded_02)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-}
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
 
-TaxoWeighingTool_03 <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(ISDBout_tax_STDS_degraded_03)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-}
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
 
-TaxoWeighingTool_04 <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(ISDBout_tax_STDS_degraded_04)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-   }
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
+```
+
+```{r}
+TaxoWeighingTool_02 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_02)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
+
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
+
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
+
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
+```
+
+```{r}
+TaxoWeighingTool_03 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_03)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
+
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
+
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
+
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
+```
+
+```{r}
+TaxoWeighingTool_04 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_04)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
+
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
+
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
+
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
+```
+
+```{r}
+TaxoWeighingTool_05 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_05)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
+
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
+
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
+
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
+```
+
+```{r}
+TaxoWeighingTool_06 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_06)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
+
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
+
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
+
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
+```
+
+```{r}
+TaxoWeighingTool_07 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_07)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
+
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
+
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
+
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
+```
+
+```{r}
+TaxoWeighingTool_08 <- function(score_kin, score_phy, score_cla, score_ord, score_fam, score_gen, score_spe) {
+  df <- as.data.frame(ISDBout_tax_STDS_degraded_08)
+  # appends a column name indicating the applied score
+  new_colname_kin <- paste0("MatchVal_Kin_", as.name(score_kin), collapse = NULL)
+  new_colname_phy <- paste0("MatchVal_Phy_", as.name(score_phy), collapse = NULL)
+  new_colname_cla <- paste0("MatchVal_Cla_", as.name(score_cla), collapse = NULL)
+  new_colname_ord <- paste0("MatchVal_Ord_", as.name(score_ord), collapse = NULL)
+  new_colname_fam <- paste0("MatchVal_Fam_", as.name(score_fam), collapse = NULL)
+  new_colname_gen <- paste0("MatchVal_Gen_", as.name(score_gen), collapse = NULL)
+  new_colname_spe <- paste0("MatchVal_Spe_", as.name(score_spe), collapse = NULL)
+  new_colname_pmax <- paste0("Taxonomical_Score_query", collapse = NULL)
+  # Scoring Converting to numeric and normalizing
+  df <- df %>%
+    mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
+    mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
+  df[new_colname_kin] <- ifelse(df[, "Kingdom"] == df[, "Kingdom_STDS"], score_kin, 0.0)
+  df[new_colname_phy] <- ifelse(df[, "Phylum"] == df[, "Phylum_STDS"], score_phy, 0.0)
+  df[new_colname_cla] <- ifelse(df[, "Class"] == df[, "Class_STDS"], score_cla, 0.0)
+  df[new_colname_ord] <- ifelse(df[, "Order"] == df[, "Order_STDS"], score_ord, 0.0)
+  df[new_colname_fam] <- ifelse(df[, "Family"] == df[, "Family_STDS"], score_fam, 0.0)
+  df[new_colname_gen] <- ifelse(df[, "Genus"] == df[, "Genus_STDS"], score_gen, 0.0)
+  df[new_colname_spe] <- ifelse(df[, "Species"] == df[, "Species_STDS"], score_spe, 0.0)
+  df[new_colname_pmax] <- pmax(df[new_colname_kin], df[new_colname_phy], df[new_colname_cla], df[new_colname_ord], df[new_colname_fam], df[new_colname_gen], df[new_colname_spe], na.rm = TRUE)
+  df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
+
+  df <- df %>%
+    mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
+    group_by(ID_query) %>%
+    mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
+    group_by(ID_query) %>%
+    arrange(RANK_FINAL, desc(-Pondered_Score_query))
+
+  df <- df %>%
+    filter(MatchVal == "Match") %>%
+    distinct(ID_query, .keep_all = TRUE)
+
+  df_results <- data.frame(df)
+  kin_score <- as.numeric(gsub(pattern = "MatchVal_Kin_", replacement = "", x = colnames(df_results)))
+  kin_score <- kin_score[!is.na(kin_score)]
+  phy_score <- as.numeric(gsub(pattern = "MatchVal_Phy_", replacement = "", x = colnames(df_results)))
+  phy_score <- phy_score[!is.na(phy_score)]
+  cla_score <- as.numeric(gsub(pattern = "MatchVal_Cla_", replacement = "", x = colnames(df_results)))
+  cla_score <- cla_score[!is.na(cla_score)]
+  ord_score <- as.numeric(gsub(pattern = "MatchVal_Ord_", replacement = "", x = colnames(df_results)))
+  ord_score <- ord_score[!is.na(ord_score)]
+  fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
+  fam_score <- fam_score[!is.na(fam_score)]
+  gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
+  gen_score <- gen_score[!is.na(gen_score)]
+  spe_score <- as.numeric(gsub(pattern = "MatchVal_Spe_", replacement = "", x = colnames(df_results)))
+  spe_score <- spe_score[!is.na(spe_score)]
+  tab <- as.data.frame(table(df_results["RANK_FINAL"]))
+  hits_nb <- as.numeric(tab[[2]][1])
+
+  return(list(Score = hits_nb))
+}
 ```
 
 #Set bounds
 ```{r}
-bounds <- list(score_fam = c(0,3), score_gen = c(0,3), score_sp = c(0,3))
+bounds <- list(score_kin = c(0, 7), score_phy = c(0, 7), score_ord = c(0, 7), score_cla = c(0, 7), score_fam = c(0, 7), score_gen = c(0, 7), score_spe = c(0, 7))
+```
+
+```{r}
+registerDoParallel(10)
+getDoParWorkers()
 ```
 
 #Export Optimisation results (ISDB)
 ```{r}
-Results_degraded_01_01 <- BayesianOptimization(
-   FUN = TaxoWeighingTool,
-   bounds = bounds, 
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei" ,
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_01_02 <- BayesianOptimization(
-   FUN = TaxoWeighingTool,
-   initPoints = 10,
-    nIters = 100,
-    gsPoints = 10,
-    parallel = TRUE,
-    acq = "ei",
-    kappa = 2 * 2.576,
-    eps = 0.0
-   )
- 
-Results_degraded_01_03 <- BayesianOptimization(
-   FUN = TaxoWeighingTool,
-   bounds = bounds, 
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei" ,
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-
-Results_degraded_01_04 <- BayesianOptimization(
-   FUN = TaxoWeighingTool,
-   bounds = bounds, 
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei" ,
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-
-Results_degraded_02_01 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_02,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-
-Results_degraded_02_02 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_02,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-  
-Results_degraded_02_03 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_02,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_02_04 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_02,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-  
-Results_degraded_03_01 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_03,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_03_02 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_03,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_03_03 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_03,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_03_04 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_03,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-  
-Results_degraded_04_01 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_04,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_04_02 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_04,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_04_03 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_04,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
- 
-Results_degraded_04_04 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_04,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-```
-
-# Load functions
-```{r}
-TaxoWeighingTool_Sirius_01 <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(Results_Sirius_degraded_01)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-}
-
-TaxoWeighingTool_Sirius_02 <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(Results_Sirius_degraded_02)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-}
-
-TaxoWeighingTool_Sirius_03 <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(Results_Sirius_degraded_03)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-}
-
-TaxoWeighingTool_Sirius_04 <- function(score_fam, score_gen, score_sp){
-   df <- as.data.frame(Sirius_tax_STDS_degraded_04)
-   
-   # appends a column name indicating the applied score
-   new_colname_fam <- paste0('MatchVal_Fam_', as.name(score_fam), collapse = NULL)
-   new_colname_gen <- paste0('MatchVal_Gen_', as.name(score_gen), collapse = NULL)
-   new_colname_sp <- paste0('MatchVal_Sp_', as.name(score_sp), collapse = NULL)
-   new_colname_pmax <- paste0('Taxonomical_Score_query', collapse = NULL)
-   
-   #Scoring Converting to numeric and normalizing
-   df <- df %>%
-      mutate_at(vars(matches("Score_query")), list(as.numeric)) %>%
-      mutate(Normalized_Score_query = (Score_query - min(Score_query)) / (max(Score_query) - min(Score_query)))
-   
-   df[new_colname_fam] <- ifelse(df[ ,"Family"] == df[ ,"Family_STDS"], score_fam, 0.0)
-   df[new_colname_gen] <- ifelse(df[ ,"Genus"] == df[ ,"Genus_STDS"], score_gen, 0.0)
-   df[new_colname_sp]<- ifelse(df[ ,"Species"] == df[ ,"Species_STDS"], score_sp, 0.0)
-   df[new_colname_pmax] <- pmax(df[new_colname_fam], df[new_colname_gen], df[new_colname_sp], na.rm = TRUE)
-   df[new_colname_pmax][is.na(df[new_colname_pmax])] <- 0.0
-   
-   df <- df %>%
-      mutate(Pondered_Score_query = (Taxonomical_Score_query + Normalized_Score_query)) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_BEFORE = (dense_rank(-Normalized_Score_query))) %>%
-      group_by(ID_query) %>%
-      mutate(RANK_FINAL = (dense_rank(-Pondered_Score_query))) %>%
-      group_by(ID_query) %>%
-      arrange(RANK_FINAL, desc(-Pondered_Score_query))
-   
-   df <- df %>%
-      filter(MatchVal == 'Match') %>%
-      distinct(ID_query, .keep_all = TRUE)
-   
-   df_results <- data.frame(df)
-   fam_score <- as.numeric(gsub(pattern = "MatchVal_Fam_", replacement = "", x = colnames(df_results)))
-   fam_score <- fam_score[!is.na(fam_score)]
-   gen_score <- as.numeric(gsub(pattern = "MatchVal_Gen_", replacement = "", x = colnames(df_results)))
-   gen_score <- gen_score[!is.na(gen_score)]
-   sp_score <- as.numeric(gsub(pattern = "MatchVal_Sp_", replacement = "", x = colnames(df_results)))
-   sp_score <- sp_score[!is.na(sp_score)]
-   tab <- as.data.frame(table(df_results['RANK_FINAL']))
-   hits_nb <- as.numeric(tab[[2]][1])
-   
-   return(list(Score = hits_nb))
-   }
-```
-
-#Export Optimisation results (Sirius)
-```{r}
-Results_Sirius_degraded_01_01 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_Sirius_01,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-   
-Results_Sirius_degraded_01_02 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_Sirius_02,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-      
-Results_Sirius_degraded_01_03 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_Sirius_03,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 100,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-   
-Results_Sirius_01_04 <- BayesianOptimization(
-   FUN = TaxoWeighingTool_Sirius_04,
-   bounds = bounds,
-   initPoints = 10,
-   nIters = 40,
-   gsPoints = 10,
-   parallel = TRUE,
-   acq = "ei",
-   kappa = 2 * 2.576,
-   eps = 0.0
-   )
-
-View(Results_Sirius_01_04$BestPars)
-View(Results_Sirius_01_04$ScoreDT)
+Results_degraded_01 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_01,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
 ```
 
 ```{r}
-tailer <- function(x){
-  last_row <- tail(x,1)
-  return(last_row)
-}
+Results_degraded_02 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_02,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
+```
 
-df_list <- list(Results_degraded_01_01$BestPars,
-                Results_degraded_01_02$BestPars,
-                Results_degraded_01_03$BestPars,
-                Results_degraded_01_04$BestPars,
-                Results_degraded_02_01$BestPars,
-                Results_degraded_02_02$BestPars,
-                Results_degraded_02_03$BestPars,
-                Results_degraded_02_04$BestPars,
-                Results_degraded_03_01$BestPars,
-                Results_degraded_03_02$BestPars,
-                Results_degraded_03_03$BestPars,
-                Results_degraded_03_04$BestPars,
-                Results_degraded_04_01$BestPars,
-                Results_degraded_04_02$BestPars,
-                Results_degraded_04_03$BestPars,
-                Results_degraded_04_04$BestPars)
+```{r}
+Results_degraded_03 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_03,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
+```
 
-df_list_sirius <- list(Results_Sirius_degraded_01_01$BestPars,
-                Results_Sirius_degraded_01_02$BestPars,
-                Results_Sirius_degraded_01_03$BestPars,
-                Results_Sirius_degraded_01_04$BestPars)
+```{r}
+Results_degraded_04 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_04,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
+```
 
-optimized_list <- map(df_list, tailer)
+```{r}
+Results_degraded_05 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_05,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
+```
 
-optimized_df <- do.call(rbind, optimized_list)
+```{r}
+Results_degraded_06 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_06,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
+```
 
-mean_sp_weight <- mean(optimized_df$score_sp)
-mean_gen_weight <- mean(optimized_df$score_gen)
-mean_fam_weight <- mean(optimized_df$score_fam)
-mean_hits <- mean(optimized_df$Score)
-mean_iter <- mean(optimized_df$Iteration)
-mean_time <- mean(optimized_df$elapsedSecs)
+```{r}
+Results_degraded_07 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_07,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
+```
+
+```{r}
+Results_degraded_08 <- BayesianOptimization(
+  FUN = TaxoWeighingTool_08,
+  bounds = bounds,
+  initPoints = 10,
+  bulkNew = 10,
+  nIters = 256,
+  gsPoints = 10,
+  parallel = TRUE,
+  acq = "ei",
+  kappa = 1 * 2.56,
+  eps = 0.0
+)
+```
+
+```{r}
+library(MonteCarlo)
+```
+
+```{r}
+Results_degraded_MC_01 <- MonteCarlo(
+  func = TaxoWeighingTool_01,
+  nrep = 10,
+  param_list = bounds,
+  ncpus = 10
+)
+```
+
+```{r}
+df_test <- as.data.frame(Results_degraded_01$BestPars)
+```
+
+```{r}
+source("./taxo_functions.R")
+```
+
+###Applying the function
+```{r}
+ISDBout_weighted_new <- TaxoWeighter(1, 2, 3, 4, 5, 6, 7, ISDBout_tax_STDS_degraded_01)
+
+ISDBout_weighted_old <- TaxoWeighter_old(1, 2, 3, ISDBout_tax_STDS_degraded_01)
+```
+
+```{r}
+TP_new <- ISDBout_weighted_new %>%
+  filter(RANK_FINAL == 1)
+
+TP_old <- ISDBout_weighted_old %>%
+  filter(RANK_FINAL == 1)
+```
+
+```{r}
+Inc_new <- ISDBout_weighted_new %>%
+  filter(RANK_FINAL <= RANK_BEFORE)
+
+Inc_old <- ISDBout_weighted_old %>%
+  filter(RANK_FINAL <= RANK_BEFORE)
+```
+
+```{r}
+Dec_new <- ISDBout_weighted %>%
+  filter(RANK_FINAL > RANK_BEFORE)
+
+Dec_old <- ISDBout_weighted_old %>%
+  filter(RANK_FINAL > RANK_BEFORE)
 ```

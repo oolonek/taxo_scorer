@@ -10,38 +10,38 @@ top_candidates <- 500000
 
 ###Inputs
 ```{r}
-#Path to ISDB result
+# Path to ISDB result
 input_ISDB_path <- "https://osf.io/yunm8/download"
 
-#Path to MSFinder result
+# Path to MSFinder result
 input_MSFinder_path <- "https://osf.io/2h7y9/download"
 
-#Path to Sirius result
+# Path to Sirius result
 input_Sirius_path <- "https://osf.io/57tw6/download"
 
-#Path to metadata with structures/biosources information
-Metadata_path <- "..."
+# Path to metadata with structures/biosources information
+Metadata_path <- "~/190602_DNP_TAXcof_CF.tsv"
 
-#Path to GNPS file containing Spectrum ID
+# Path to GNPS file containing Spectrum ID
 Spectrum_ID_file_path <- "https://osf.io/un8ey/download"
 
-#Only for the standards
+# Only for the standards
 input_STDS_path <- "https://osf.io/ye4gx/download"
 ```
 
 ###Outputs
 ```{r}
-#Path to curated result of ISDB
-output_ISDB_path <- "~/Data/Curated/ISDB_DNP_output_curated.tsv"
+# Path to curated result of ISDB
+output_ISDB_path <- "../Data/Curated/ISDB_DNP_output_curated.tsv"
 
-#Path to curated result of MSFinder
-output_MSFinder_path <- "~/Data/Curated/MS_Finder_output_curated.tsv"
+# Path to curated result of MSFinder
+output_MSFinder_path <- "../Data/Curated/MS_Finder_output_curated.tsv"
 
-#Path to curated result of Sirius
-output_Sirius_path <- "~/Data/Curated/Sirius_output_curated.tsv"
+# Path to curated result of Sirius
+output_Sirius_path <- "../Data/Curated/Sirius_output_curated.tsv"
 
-#Path to curated standards
-output_STDS_path <- "~/Data/Curated/benchmarking_dataset_metadata_curated.tsv"
+# Path to curated standards
+output_STDS_path <- "../Data/Curated/benchmarking_dataset_metadata_curated.tsv"
 ```
 
 #Requested packages
@@ -60,74 +60,74 @@ ISDBout <- read_delim(
   delim = "\t",
   escape_double = FALSE,
   trim_ws = TRUE
-  )
+)
 
 MSFinderout <- read_delim(
   file = input_MSFinder_path,
   delim = "\t",
-  escape_double = FALSE, 
+  escape_double = FALSE,
   trim_ws = TRUE
-  )
+)
 
 Siriusout <- read_delim(
-  file = input_Sirius_path, 
+  file = input_Sirius_path,
   delim = "\t",
   escape_double = FALSE,
   trim_ws = TRUE
-  )
+)
 
 STDS_tax <- read_delim(
   file = input_STDS_path,
   delim = "\t",
-  escape_double = FALSE, 
+  escape_double = FALSE,
   trim_ws = TRUE
-  )
+)
 
 Metadata <- read_delim(
-  file = Metadata_path, 
+  file = Metadata_path,
   delim = "\t",
   escape_double = FALSE,
   trim_ws = TRUE
-  )
+)
 
 Spectrum_ID_file <- read_delim(
   file = Spectrum_ID_file_path,
-  delim = "\t", 
+  delim = "\t",
   escape_double = FALSE,
   trim_ws = TRUE
-  )
+)
 ```
 
 #Preliminary cleaning
 ###ISDB
 Adding Spectrum ID
 ```{r}
-Spectrum_ID_file$observation <- 1 : nrow(Spectrum_ID_file)
+Spectrum_ID_file$observation <- 1:nrow(Spectrum_ID_file)
 
 Spectrum_ID_file <- Spectrum_ID_file %>%
   select(
-    observation, 
+    observation,
     spectrum_id_val
-    )
+  )
 
-ISDBout = left_join(
-  ISDBout, 
+ISDBout <- left_join(
+  ISDBout,
   Spectrum_ID_file,
   by = c(
     "cluster index" = "observation"
-    ),
+  ),
   match = "all"
-  )
+)
 ```
 
 Keeping required columns
 ```{r}
-ISDBout <- ISDBout %>% 
+ISDBout <- ISDBout %>%
   select(
     spectrum_id_val,
     InChIKey_DNP,
     Spectral_Score_DNP
-    )
+  )
 ```
 
 Splitting columns
@@ -140,12 +140,18 @@ ISDBout <- ISDBout %>%
 
 Melting the data
 ```{r}
-ISDBout_melted <- melt(setDT(ISDBout), id = ,
-                       measure = patterns("^InChIKey_DNP",
-                                          "^Spectral_Score_DNP"), 
-                       value.name = c("InChIKey_DNP", 
-                                      "Spectral_Score_DNP"),
-                       variable.name = "Rank")
+ISDBout_melted <- melt(setDT(ISDBout),
+  id = ,
+  measure = patterns(
+    "^InChIKey_DNP",
+    "^Spectral_Score_DNP"
+  ),
+  value.name = c(
+    "InChIKey_DNP",
+    "Spectral_Score_DNP"
+  ),
+  variable.name = "Rank"
+)
 ```
 
 Removing unnecessary columns
@@ -156,53 +162,59 @@ ISDBout_cleaned <- ISDBout %>%
 
 Adding Cluster Index
 ```{r}
-ISDBout_merged = left_join(
+ISDBout_merged <- left_join(
   ISDBout_cleaned,
   ISDBout_melted
-  )
+)
 ```
 
 Generating ShortIK
 ```{r}
 tempIK <- str_split_fixed(
   string = ISDBout_merged$InChIKey_DNP,
-  pattern = "-", 
-  n =3
-  )
+  pattern = "-",
+  n = 3
+)
 
-ISDBout_merged$"Short_IK_ISDB" = tempIK[,1]
+ISDBout_merged$"Short_IK_ISDB" <- tempIK[, 1]
 ```
 
 ###MSFinder
 Melting the data
 ```{r}
-MSFinderout_melted <- melt(setDT(MSFinderout), id = ,
-                           measure = patterns("^Structure rank",
-                                              "^Total score",
-                                              "^Databases",
-                                              "^Ontology",
-                                              "^InChIKey",
-                                              "^Formula",
-                                              "^SMILES"),
-                           value.name = c("Structure rank",
-                                          "Total score",
-                                          "Databases",
-                                          "Ontology",
-                                          "InChIKey",
-                                          "Formula",
-                                          "SMILES"),
-                           variable.name = "Rank")
+MSFinderout_melted <- melt(setDT(MSFinderout),
+  id = ,
+  measure = patterns(
+    "^Structure rank",
+    "^Total score",
+    "^Databases",
+    "^Ontology",
+    "^InChIKey",
+    "^Formula",
+    "^SMILES"
+  ),
+  value.name = c(
+    "Structure rank",
+    "Total score",
+    "Databases",
+    "Ontology",
+    "InChIKey",
+    "Formula",
+    "SMILES"
+  ),
+  variable.name = "Rank"
+)
 ```
 
 Keeping required columns
 ```{r}
-MSFinderout_melted <- MSFinderout_melted %>% 
+MSFinderout_melted <- MSFinderout_melted %>%
   select(
-    Title, 
+    Title,
     Rank,
-    'Total score', 
+    "Total score",
     InChIKey
-    )
+  )
 ```
 
 Getting proper short IK
@@ -213,78 +225,79 @@ MSFinderout_melted$Short_IK <- substr(MSFinderout_melted$InChIKey, 0, 14)
 ###Sirius  
 Cleaning of useless columns
 ```{r}
-Siriusout <- Siriusout%>%
+Siriusout <- Siriusout %>%
   filter(str_detect(inchi, "^InChI"))
 ```
 
 Renaming column
 ```{r}
-colnames(Siriusout)[1]<-"inchikey2D"
+colnames(Siriusout)[1] <- "inchikey2D"
 ```
 
 Splitting columns to get proper short IK
 ```{r}
 Siriusout <- Siriusout %>%
-  cSplit("inchikey2D", ":")%>%
+  cSplit("inchikey2D", ":") %>%
   cSplit("inchikey2D_1", ".")
 ```
 
 
 ```{r}
-Siriusout <- Siriusout%>%
+Siriusout <- Siriusout %>%
   select(
-    inchikey2D_1_1, 
+    inchikey2D_1_1,
     inchikey2D_2,
-    rank, 
+    rank,
     score
-    )
+  )
 ```
 
 ```{r}
-sirius_unique <- Siriusout[!duplicated(Siriusout$inchikey2D_1_1),]
+sirius_unique <- Siriusout[!duplicated(Siriusout$inchikey2D_1_1), ]
 ```
 
 ###Metadata
 ```{r}
-Metadata_cleaned <- Metadata %>% 
+Metadata_cleaned <- Metadata %>%
   select(
     Short_IK_DNP,
-    Kingdom,
-    Phylum, 
-    Class, 
-    Order,
-    Family,
-    Genus,
-    Species, 
-    Subspecies, 
-    Kingdom_cf, 
-    Superclass_cf,
-    Class_cf,
-    Subclass_cf, 
-    Parent_Level_1_cf, 
-    Parent_Level_2_cf,
-    Parent_Level_3_cf,
-    Parent_Level_4_cf, 
-    Parent_Level_5_cf,
-    Parent_Level_6_cf,
-    Accurate_Mass
-    )
+    Kingdom = Kingdom_cof_DNP,
+    Phylum = Phylum_cof_DNP,
+    Class = Class_cof_DNP,
+    Order = Order_cof_DNP,
+    Family = Family_cof_DNP,
+    Genus = Genus_cof_DNP,
+    Species = Species_cof_DNP,
+    Subspecies = Subspecies_cof_DNP,
+    Kingdom_cf = Kingdom_cf_DNP,
+    Superclass_cf = Superclass_cf_DNP,
+    Class_cf = Class_cf_DNP,
+    Subclass_cf = Subclass_cf_DNP,
+    Parent_Level_1_cf = Parent_Level_1_cf_DNP,
+    Parent_Level_2_cf = Parent_Level_2_cf_DNP,
+    Parent_Level_3_cf = Parent_Level_3_cf_DNP,
+    Parent_Level_4_cf = Parent_Level_4_cf_DNP,
+    Parent_Level_5_cf = Parent_Level_5_cf_DNP,
+    Parent_Level_6_cf =  Parent_Level_6_cf_DNP,
+    Accurate_Mass = Accurate_Mass_DNP
+  )
 ```
 
 ###STDS
 Renaming columns
 ```{r}
 colnames(STDS_tax) <- paste(colnames(STDS_tax), "STDS", sep = "_")
-colnames(STDS_tax)[7]<-"ID_STDS"
+colnames(STDS_tax)[7] <- "ID_STDS"
 ```
 
 ```{r}
-STDS_cleaned <- STDS_tax %>% 
+STDS_cleaned <- STDS_tax %>%
   select(
+    FoundName_STDS,
     ID_STDS,
-    Short_IK_STDS, 
+    Short_IK_STDS,
     Kingdom_STDS,
-    Phylum_STDS, 
+    Phylum_STDS,
     Class_STDS,
     Order_STDS,
     Family_STDS,
@@ -295,40 +308,40 @@ STDS_cleaned <- STDS_tax %>%
     Superclass_cf_STDS,
     Class_cf_STDS,
     Subclass_cf_STDS,
-    Parent_Level_1_cf_STDS, 
+    Parent_Level_1_cf_STDS,
     Parent_Level_2_cf_STDS,
     Parent_Level_3_cf_STDS,
     Parent_Level_4_cf_STDS,
     Parent_Level_5_cf_STDS,
     Parent_Level_6_cf_STDS,
     Accurate_Mass_STDS,
-    pepmass_val_STDS, 
+    pepmass_val_STDS,
     sourceinstr_val_STDS,
     lib_val_STDS
-    )
+  )
 ```
 
 ###Harmonizing outputs
 ```{r}
-Siriusout <- Siriusout%>%
-  mutate_at(vars(matches("rank")),list(as.numeric))%>%
-  select(ID_query = inchikey2D_1_1, Short_IK_query = inchikey2D_2, Rank_query = rank, Score_query = score)%>%
-  mutate(Score_query = as.numeric(Score_query))%>%
-  mutate(Short_IK_query = as.character(Short_IK_query))%>%
-  mutate(ID_query = as.character(ID_query))%>%
+Siriusout <- Siriusout %>%
+  mutate_at(vars(matches("rank")), list(as.numeric)) %>%
+  select(ID_query = inchikey2D_1_1, Short_IK_query = inchikey2D_2, Rank_query = rank, Score_query = score) %>%
+  mutate(Score_query = as.numeric(Score_query)) %>%
+  mutate(Short_IK_query = as.character(Short_IK_query)) %>%
+  mutate(ID_query = as.character(ID_query)) %>%
   data.table()
 
-MSFinderout <- MSFinderout_melted%>%
-  mutate_at(vars(matches("Rank")),list(as.numeric))%>%
-  select(ID_query = Title, Short_IK_query = Short_IK, Rank_query = Rank, Score_query =`Total score`)%>%
+MSFinderout <- MSFinderout_melted %>%
+  mutate_at(vars(matches("Rank")), list(as.numeric)) %>%
+  select(ID_query = Title, Short_IK_query = Short_IK, Rank_query = Rank, Score_query = `Total score`) %>%
   data.table()
-MSFinderout <- MSFinderout[MSFinderout$Short_IK_query != '',]
+MSFinderout <- MSFinderout[MSFinderout$Short_IK_query != "", ]
 
-ISDBout <- ISDBout_merged%>%
-  mutate_at(vars(matches("Rank")),list(as.numeric))%>%
+ISDBout <- ISDBout_merged %>%
+  mutate_at(vars(matches("Rank")), list(as.numeric)) %>%
   select(ID_query = spectrum_id_val, Short_IK_query = Short_IK_ISDB, Rank_query = Rank, Score_query = Spectral_Score_DNP) %>%
   data.table()
-ISDBout <- ISDBout[ISDBout$Short_IK_query != '',]
+ISDBout <- ISDBout[ISDBout$Short_IK_query != "", ]
 ```
 
 Keeping only the desired candidates
@@ -340,63 +353,63 @@ ISDBout_top <- filter(ISDBout, Rank_query <= top_candidates)
 
 #Adding metadata
 ```{r}
-Siriusout_merged_taxed = left_join(
-  Siriusout_top, 
+Siriusout_merged_taxed <- left_join(
+  Siriusout_top,
   Metadata_cleaned,
   by = c(
     "Short_IK_query" = "Short_IK_DNP"
-    ),
+  ),
   match = "all"
-  )
+)
 
-MSFinderout_merged_taxed = left_join(
+MSFinderout_merged_taxed <- left_join(
   MSFinderout_top,
-  Metadata_cleaned, 
-  by = c(
-    "Short_IK_query" = "Short_IK_DNP"
-    ), 
-  match = "all"
-  )
-
-ISDBout_merged_taxed = left_join(
-  ISDBout_top, 
   Metadata_cleaned,
   by = c(
     "Short_IK_query" = "Short_IK_DNP"
-    ), 
+  ),
   match = "all"
-  )
+)
+
+ISDBout_merged_taxed <- left_join(
+  ISDBout_top,
+  Metadata_cleaned,
+  by = c(
+    "Short_IK_query" = "Short_IK_DNP"
+  ),
+  match = "all"
+)
 ```
 
 #Merging with standards
 Merging files by unique ID
 ```{r}
-Siriusout_tax_STDS = left_join(
+Siriusout_tax_STDS <- left_join(
   Siriusout_merged_taxed,
-  STDS_cleaned, 
-  by = c(
-    "ID_query" = "ID_STDS"
-    ),
-  match = "all"
-  )
-
-MSFinderout_tax_STDS = left_join(
-  MSFinderout_merged_taxed,
-  STDS_cleaned, 
-  by = c(
-    "ID_query" = "ID_STDS"
-    ),
-  match = "all"
-  )
-
-ISDBout_tax_STDS = left_join(
-  ISDBout_merged_taxed, 
   STDS_cleaned,
   by = c(
     "ID_query" = "ID_STDS"
-    ),
+  ),
   match = "all"
-  )
+)
+
+MSFinderout_tax_STDS <- left_join(
+  MSFinderout_merged_taxed,
+  STDS_cleaned,
+  by = c(
+    "ID_query" = "ID_STDS"
+  ),
+  match = "all"
+)
+
+ISDBout_tax_STDS <- left_join(
+  ISDBout_merged_taxed,
+  STDS_cleaned,
+  by = c(
+    "ID_query" = "ID_STDS"
+  ),
+  match = "all"
+)
 ```
 
 Matching with the standards to get the correct hits
