@@ -3,3 +3,4 @@
 *.ipynb
 .Rhistory
 *.tsv
+.vscode
