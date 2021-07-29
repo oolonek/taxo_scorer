@@ -22,12 +22,5 @@ authors:
 - family-names: "Allard"
   given-names: "Pierre-Marie"
 doi: "10.3389/fpls.2019.01329"
-identifiers:
-- type: "doi"
-  value: "10.3389/fpls.2019.01329"
-- type: "url"
-  value: "http://dx.doi.org/10.3389/fpls.2019.01329"
-- type: "other"
-  value: "urn:issn:1664-462X"
 title: "Taxonomically Informed Scoring Enhances Confidence in Natural Products Annotation"
 url: "http://dx.doi.org/10.3389/fpls.2019.01329"
